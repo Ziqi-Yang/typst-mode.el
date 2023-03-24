@@ -1,0 +1,5 @@
+#+TITLE: Typst Mode
+
+An Emacs major mode for a markup-based typesetting system [[typst][https://github.com/Ziqi-Yang/typst-mode.el]].
+
+This package is in early development.
