@@ -1,6 +1,6 @@
 ;;; typst-mode.el --- major mode for working with typst markup-based typesetting system -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019, Adrien Brochard
+;; Copyright (C) 2023, Ziqi Yang
 
 ;; This file is NOT part of Emacs.
 
