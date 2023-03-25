@@ -36,41 +36,65 @@
   "Typst Writing."
   :group 'text)
 
-(defvar typst-global-keywords
-  '("#let" "#set" "#show" "#if" "#for" "#while" "#include" "#import")
-  "Keywords for typst mode that are in the global scope.")
+;;;###autoload
+(define-derived-mode typst-base-mode prog-mode "Typst"
+  "Generic major mode for editing Typst files.
 
-;; (defun typst-inner-face-match (limit)
-;;   (catch 'found
-;;     (while (re-search-forward "{\\([^}]*\\)}" limit t)
-;;       (let ((text-start (match-beginning 1))
-;;              (text-end (match-end 1)))
-;;         (when (and text-start text-end)
-;;           (set-match-data (list text-start text-end))
-;;           (throw 'found t))))
-;;     nil))
-
-;; (defface typst-custom-face
-;;   '((t (:foreground "green")))
-;;   "Custom face for text inside braces."
-;;   :group 'markup-faces)
-
-(defvar typst-font-lock-keywords
-  `((,(regexp-opt typst-global-keywords t) . font-lock-keyword-face)
-     ("\\(#\\w+\\)[[(]" . '(1 font-lock-function-name-face))
-     ;; (typst-inner-face-match . typst-custom-face)
-     )
-  "Minimal highlighting expressions for typst mode")
+This is a generic major mode intended to be inherited by
+concrete implementations.  Currently there are two concrete
+implementations: `typst-mode' and `typst-ts-mode'."
+  ;; :syntax-table typst-syntax-table
+  (setq-local tab-width 4))
 
 ;;;###autoload
-(define-derived-mode typst-mode prog-mode "Typst"
-  "A major mode for editing the markup-based typesetting language."
-  ;; :syntax-table typst-syntax-table
-  (setq font-lock-defaults '(typst-font-lock-keywords)))
+(define-derived-mode typst-mode typst-base-mode "Typst"
+  "Major mode for editing Typst files.
 
+\\{typst-mode-map}"
+  ;; :syntax-table typst-syntax-table
+  (setq font-lock-defaults '('(typst-mode-fontify) t))
+  )
+
+;; TODO support treesit
+;; ;;;###autoload
+;; (define-derived-mode typst-ts-mode typst-base-mode "Typst"
+;;   "Major mode for editing Typst files.
+
+;; \\{typst-ts-mode-map}"
+;;   ;; :syntax-table typst-syntax-table
+;;   (when (treesit-ready-p 'typst)
+;;     (treesit-parser-create 'typst)
+;;     ;; (setq-local treesit-font-lock-settings typst--treesit-settings)
+;;     (setq-local treesit-font-lock-feature-list
+;;       '(( comment definition)
+;;          ( keyword string type)
+;;          ( assignment builtin constant decorator
+;;            escape-sequence number property string-interpolation )
+;;          ( bracket delimiter function operator variable)))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.typ\\'" . typst-mode))
+
+;;; FONTIFICATION ===========================================
+(defun typst-mode-fontify (limit)
+  (save-excursion
+    (let ((beg (point))
+           (end limit))
+      ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Special-Properties.html
+      ;; (remove-list-of-text-properties beg end '(font-lock-face face))
+      )
+    )
+  )
+
+(defun typst-mode-fontify-region (beg end keywords)
+  (save-excursion
+    (let ((font-lock-keywords keywords)
+           (font-lock-multiline nil)
+           (font-lock-keywords-case-fold-search nil)
+           (font-lock-keywords-only t)
+           (font-lock-extend-region-functions nil))
+      (when (and (listp font-lock-keywords) global-font-lock-mode)
+        (font-lock-fontify-region beg end)))))
 
 (provide 'typst-mode)
 ;;; typst-mode.el ends here

@@ -1,5 +1,11 @@
 #+TITLE: Typst Mode
 
-An Emacs major mode for a markup-based typesetting system [[typst][https://github.com/Ziqi-Yang/typst-mode.el]].
+An Emacs major mode for [[https://typst.app/][typst]] markup-based typesetting system.
 
 This package is in early development.
+
+* Special Thanks
+Special thanks to [[https://github.com/fxbois/web-mode/blob/master/web-mode.el][web-mode]], there won't be =typst-mode= without it.
+
+* Development
+1. try =treesit=, https://github.com/emacs-mirror/emacs/blob/master/admin/notes/tree-sitter/starter-guide
