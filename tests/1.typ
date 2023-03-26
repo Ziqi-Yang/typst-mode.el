@@ -41,6 +41,15 @@ line comment */
 = styles
 *strong* _emphasized_ `hello` https://typst.app/ <label> @reference
 
+- *Content*
+  - Text
+  - Math
+  + Visualize
+  + Meta
+  
+/ Ligature: A merged glyph.
+/ 你好.abc:asdfasfs asdf
+
 #show: project.with(
   title: "Test",
   authors: (
@@ -59,7 +68,7 @@ line comment */
 == In this paper
 === Contributions
 
-\{ This is not code block \}
+\{ This is not a code block \}
 
 #let name = "Typst"
 This is #name's documentation.

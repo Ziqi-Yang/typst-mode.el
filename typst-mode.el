@@ -56,6 +56,11 @@
   :group 'typst-mode-faces
   :group 'faces)
 
+(defgroup typst-mode-math-faces nil
+  "Faces for syntax highlighting."
+  :group 'typst-mode-faces
+  :group 'faces)
+
 ;;; Faces ===================================================
 (defface typst-mode-keyword-face
   '((t :inherit font-lock-keyword-face))
@@ -108,7 +113,7 @@
   :group 'typst-mode-markup-faces)
 
 (defface typst-mode-markup-heading-1-face
-  '((t :weight semi-bold :height 150))
+  '((t :weight bold :height 150))
   "Face for heading 1."
   :group 'typst-mode-markup-faces)
 
@@ -129,6 +134,11 @@
 
 (defface typst-mode-markup-heading-5-face
   '((t :inherit typst-mode-markup-heading-1-face :height 110))
+  "Face for heading 5."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-term-list-face
+  '((t :weight bold))
   "Face for heading 5."
   :group 'typst-mode-markup-faces)
 
@@ -178,6 +188,9 @@
 (defvar typst-mode-markup-heading-5-face  'typst-mode-markup-heading-5-face
   "Face name to use for heading 5.")
 
+(defvar typst-mode-markup-term-list-face  'typst-mode-markup-term-list-face
+  "Face name to use for heading 5.")
+
 ;;; Regexps & Keywords =======================================
 
 (defconst typst--markup-comment-regexp ;; don't interfer URLs
@@ -194,10 +207,10 @@
   (rx (or "http://" "https://") (1+ (or alnum ":" "." "/")))) ;; TODO not perfect
 
 (defconst typst--markup-label-regexp
-  (rx "<" (1+ (not punct)) ">"))
+  (rx "<" (1+ (not (any punct blank))) ">"))
 
 (defconst typst--markup-reference-regexp
-  (rx "@" (1+ (not punct))))
+  (rx "@" (1+ (not (any punct blank)))))
 
 (defconst typst--markup-heading-1-regexp
   (rx bol (* blank) "=" (1+ blank) (seq (? (not blank)) (* not-newline))))
@@ -213,6 +226,9 @@
 
 (defconst typst--markup-heading-5-regexp
   (rx bol (* blank) "=====" (1+ blank) (seq (? (not blank)) (* not-newline))))
+
+(defconst typst--markup-term-list-regexp
+  (rx bol (* blank) "/" (1+ blank) (group-n 1 (1+ (not ":") )) ":" (* not-newline)))
 
 (defvar typst--global-keywords
   '("#let" "#set" "#show" "#if" "#for" "#while" "#include" "#import")
@@ -234,6 +250,9 @@
      (,typst--markup-heading-3-regexp . typst-mode-markup-heading-3-face) ;; heading 3
      (,typst--markup-heading-4-regexp . typst-mode-markup-heading-4-face) ;; heading 4
      (,typst--markup-heading-5-regexp . typst-mode-markup-heading-5-face) ;; heading 5
+     ;; do nothing to bullet list
+     ;; do nothing to Numbered list
+     (,typst--markup-term-list-regexp 1 typst-mode-markup-term-list-face) ;; term list
      )
   "Minimal highlighting expressions for typst mode")
 
@@ -243,6 +262,11 @@
   ;;     ,(regexp-opt typst--global-keywords t) . typst-mode-keyword-face)
   ;;    ("#\\w+" . typst-mode-function-name-face)
   ;;    )
+  "Minimal highlighting expressions for typst mode")
+
+
+(defvar typst--math-font-lock-keywords
+  nil
   "Minimal highlighting expressions for typst mode")
 
 ;;; Syntax tables ===============================================
@@ -260,6 +284,14 @@
     (modify-syntax-entry ?* ". 23" syntax-table)
     syntax-table)
   "Syntax table for `typst--code-mode'.")
+
+;; (defvar typst--math-syntax-table
+;;   (let ((syntax-table (make-syntax-table typst--markup-syntax-table)))
+;;     (modify-syntax-entry ?\" "\"" syntax-table)
+;;     (modify-syntax-entry ?/ ". 124b" syntax-table)
+;;     (modify-syntax-entry ?* ". 23" syntax-table)
+;;     syntax-table)
+;;   "Syntax table for `typst--code-mode'.")
 
 ;;; Mode definition =========================================
 (define-derived-mode typst--base-mode prog-mode "Typst"
@@ -288,6 +320,14 @@ implementations: `typst-mode' and `typst-ts-mode'."
   (setq-local font-lock-multiline nil
     font-lock-defaults '(typst--code-font-lock-keywords)))
 
+(define-derived-mode typst--math-mode typst--base-mode "Typst"
+  "Major mode for editing Typst files.
+
+\\{typst-mode-map}"
+  ;; :syntax-table typst--code-syntax-table
+  (setq-local font-lock-multiline nil
+    font-lock-defaults '(typst--math-font-lock-keywords)))
+
 (define-hostmode typst--poly-hostmode
   :mode 'typst--markup-mode)
 
@@ -298,10 +338,21 @@ implementations: `typst-mode' and `typst-ts-mode'."
   :head-mode 'host
   :tail-mode 'host)
 
+;; (define-innermode typst--poly-math-innermode
+;;   :mode 'typst--math-mode
+;;   ;; header-matcher: the first '$' on the line. 
+;;   :head-matcher (cons (rx bol (* (not "$")) (group-n 1 "$") (* not-newline)) 1)
+;;   ;; tail-matcher: the second '$' on the line 
+;;   :tail-matcher "\\$"
+;;   :head-mode 'host
+;;   :tail-mode 'host)
+
 ;; ;;;###autoload
 (define-polymode typst-mode
   :hostmode 'typst--poly-hostmode
-  :innermodes '(typst--poly-code-innermode))
+  :innermodes '(typst--poly-code-innermode
+                 ;; typst--poly-math-innermode
+                 ))
 
 ;; TODO support treesit
 ;; (define-polymode typst-mode

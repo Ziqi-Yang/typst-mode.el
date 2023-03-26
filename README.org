@@ -6,7 +6,7 @@ Since the language specification of =typst= is somewhat complicated to parse, th
 
 * Current Shortages
 1. no syntax support for the context block =[ ]= which is located in the code block ={ }= \\
-   this problem possibly can be solved with *nested polymode*. However, currently there is no official support from polymode developer for this function.
+   this problem possibly can be solved with *nested polymode*. However, currently there is no official support from polymode developer for this function?
 
 * To Dos
 1. [ ] add treesit mode / hand-written syntax highlighter imitating =web-mode=
