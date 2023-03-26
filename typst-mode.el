@@ -1,5 +1,4 @@
 ;;; typst-mode.el --- major mode for working with typst markup-based typesetting system -*- lexical-binding: t; -*-
-
 ;; Copyright (C) 2023, Ziqi Yang
 
 ;; This file is NOT part of Emacs.
@@ -22,6 +21,7 @@
 ;; Keywords: typst editing typesetting writing
 ;; URL: https://github.com/Ziqi-Yang/typst-mode.el
 ;; License: GNU General Public License >= 3
+;; Package-Requires: ("polymode")
 
 ;;; Commentary:
 
@@ -32,28 +32,99 @@
 ;;; Usage:
 ;;; Customization:
 ;;; Code:
+(require 'polymode)
+
 (defgroup typst nil
   "Typst Writing."
+  :prefix "typst-"
   :group 'text)
 
+;;; Faces ===================================================
+
+
+
+;;; Keywords ===============================================
+(defvar typst-global-keywords
+  '("#let" "#set" "#show" "#if" "#for" "#while" "#include" "#import")
+  "Keywords for typst mode that are in the global scope.")
+
+(defvar typst--markup-font-lock-keywords
+  `((,(regexp-opt typst-global-keywords t) . font-lock-keyword-face)
+     ("#\\w+" . font-lock-function-name-face)
+     )
+  "Minimal highlighting expressions for typst mode")
+
+(defvar typst--code-font-lock-keywords
+  `((,(regexp-opt typst-global-keywords t) . font-lock-keyword-face)
+     ("#\\w+" . font-lock-function-name-face)
+     )
+  "Minimal highlighting expressions for typst mode")
+
+;;; Syntax tables ===============================================
+(defvar typst--markup-syntax-table
+  (let ((syntax-table (make-syntax-table)))
+    (modify-syntax-entry ?\" "." syntax-table) ;; change the default syntax entry for double quote(string quote character '"')
+    (modify-syntax-entry ?/ ". 124b" syntax-table)
+    (modify-syntax-entry ?* ". 23" syntax-table)
+    (modify-syntax-entry ?\n "> b" syntax-table)
+    syntax-table)
+  "Syntax table for `typst--markup-mode'.")
+
+(defvar typst--code-syntax-table
+  (let ((syntax-table (make-syntax-table typst--markup-syntax-table)))
+    (modify-syntax-entry ?\" "\"" syntax-table)
+    syntax-table)
+  "Syntax table for `typst--code-mode'.")
+
+;;; Mode definition =========================================
 ;;;###autoload
-(define-derived-mode typst-base-mode prog-mode "Typst"
+(define-derived-mode typst--base-mode prog-mode "Typst"
   "Generic major mode for editing Typst files.
 
 This is a generic major mode intended to be inherited by
 concrete implementations.  Currently there are two concrete
 implementations: `typst-mode' and `typst-ts-mode'."
   ;; :syntax-table typst-syntax-table
-  (setq-local tab-width 4))
+  (setq-local tab-width 4
+    font-lock-keywords-only t))
 
-;;;###autoload
-(define-derived-mode typst-mode typst-base-mode "Typst"
+;; ;;;###autoload
+(define-derived-mode typst--markup-mode typst--base-mode "Typst"
   "Major mode for editing Typst files.
 
 \\{typst-mode-map}"
-  ;; :syntax-table typst-syntax-table
-  (setq font-lock-defaults '('(typst-mode-fontify) t))
+  :syntax-table typst--markup-syntax-table
+  (setq-local font-lock-multiline nil
+    font-lock-defaults '(typst--markup-font-lock-keywords))
   )
+
+;; ;;;###autoload
+(define-derived-mode typst--code-mode typst--base-mode "Typst"
+  "Major mode for editing Typst files.
+
+\\{typst-mode-map}"
+  :syntax-table typst--code-syntax-table
+  (setq-local font-lock-multiline nil
+    font-lock-defaults '(typst--code-font-lock-keywords))
+  )
+
+(define-hostmode typst--poly-hostmode
+  :mode 'typst--markup-mode)
+
+(define-innermode typst--poly-innermode
+  :mode 'typst--code-mode
+  :head-matcher "{"
+  :tail-matcher "}"
+  :head-mode 'host
+  :tail-mode 'host)
+
+(define-polymode typst-mode
+  :hostmode 'typst--poly-hostmode
+  :innermodes '(typst--poly-innermode))
+
+;; (define-polymode typst-mode
+;;   :hostmode 'poly-markup-hostmode
+;;   :innermodes '())
 
 ;; TODO support treesit
 ;; ;;;###autoload
@@ -74,27 +145,6 @@ implementations: `typst-mode' and `typst-ts-mode'."
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.typ\\'" . typst-mode))
-
-;;; FONTIFICATION ===========================================
-(defun typst-mode-fontify (limit)
-  (save-excursion
-    (let ((beg (point))
-           (end limit))
-      ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Special-Properties.html
-      ;; (remove-list-of-text-properties beg end '(font-lock-face face))
-      )
-    )
-  )
-
-(defun typst-mode-fontify-region (beg end keywords)
-  (save-excursion
-    (let ((font-lock-keywords keywords)
-           (font-lock-multiline nil)
-           (font-lock-keywords-case-fold-search nil)
-           (font-lock-keywords-only t)
-           (font-lock-extend-region-functions nil))
-      (when (and (listp font-lock-keywords) global-font-lock-mode)
-        (font-lock-fontify-region beg end)))))
 
 (provide 'typst-mode)
 ;;; typst-mode.el ends here
