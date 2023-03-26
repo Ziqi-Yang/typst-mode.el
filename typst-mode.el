@@ -34,13 +34,41 @@
 ;;; Code:
 (require 'polymode)
 
-(defgroup typst nil
+(defgroup typst-mode nil
   "Typst Writing."
   :prefix "typst-"
-  :group 'text)
+  :group 'text
+  :group 'languages)
+
+(defgroup typst-mode-faces nil
+  "Faces for syntax highlighting."
+  :group 'typst-mode
+  :group 'faces)
+
+(defgroup typst-mode-markup-faces nil
+  "Faces for syntax highlighting."
+  :group 'typst-mode-faces
+  :group 'faces)
+
+(defgroup typst-mode-code-faces nil
+  "Faces for syntax highlighting."
+  :group 'typst-mode-faces
+  :group 'faces)
 
 ;;; Faces ===================================================
+(defface typst-mode-keyword-face
+  '((t :inherit font-lock-keyword-face))
+  "Face for keyword."
+  :group 'typst-mode-faces)
 
+(defface typst-mode-markup-italic-face
+  '((t :slant italic))
+  "Face for builtins."
+  :group 'typst-mode-markup-faces)
+
+;; @ corresponding variables ============
+(defvar typst-mode-keyword-face  'typst-mode-keyword-face
+  "Face name to use for keywords.")
 
 
 ;;; Keywords ===============================================
@@ -49,13 +77,13 @@
   "Keywords for typst mode that are in the global scope.")
 
 (defvar typst--markup-font-lock-keywords
-  `((,(regexp-opt typst-global-keywords t) . font-lock-keyword-face)
+  `((,(regexp-opt typst-global-keywords t) . typst-mode-keyword-face)
      ("#\\w+" . font-lock-function-name-face)
      )
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--code-font-lock-keywords
-  `((,(regexp-opt typst-global-keywords t) . font-lock-keyword-face)
+  `((,(regexp-opt typst-global-keywords t) . typst-mode-keyword-face)
      ("#\\w+" . font-lock-function-name-face)
      )
   "Minimal highlighting expressions for typst mode")
@@ -71,62 +99,60 @@
   "Syntax table for `typst--markup-mode'.")
 
 (defvar typst--code-syntax-table
-  (let ((syntax-table (make-syntax-table typst--markup-syntax-table)))
-    (modify-syntax-entry ?\" "\"" syntax-table)
-    syntax-table)
-  "Syntax table for `typst--code-mode'.")
+    (let ((syntax-table (make-syntax-table typst--markup-syntax-table)))
+        (modify-syntax-entry ?\" "\"" syntax-table)
+        syntax-table)
+    "Syntax table for `typst--code-mode'.")
 
 ;;; Mode definition =========================================
-;;;###autoload
 (define-derived-mode typst--base-mode prog-mode "Typst"
-  "Generic major mode for editing Typst files.
+    "Generic major mode for editing Typst files.
 
 This is a generic major mode intended to be inherited by
 concrete implementations.  Currently there are two concrete
 implementations: `typst-mode' and `typst-ts-mode'."
-  ;; :syntax-table typst-syntax-table
-  (setq-local tab-width 4
-    font-lock-keywords-only t))
+    ;; :syntax-table typst-syntax-table
+    (setq-local tab-width 4
+        font-lock-keywords-only t))
 
-;; ;;;###autoload
 (define-derived-mode typst--markup-mode typst--base-mode "Typst"
-  "Major mode for editing Typst files.
+    "Major mode for editing Typst files.
 
 \\{typst-mode-map}"
-  :syntax-table typst--markup-syntax-table
-  (setq-local font-lock-multiline nil
-    font-lock-defaults '(typst--markup-font-lock-keywords))
-  )
+    :syntax-table typst--markup-syntax-table
+    (setq-local font-lock-multiline nil
+        font-lock-defaults '(typst--markup-font-lock-keywords))
+    )
 
-;; ;;;###autoload
 (define-derived-mode typst--code-mode typst--base-mode "Typst"
-  "Major mode for editing Typst files.
+    "Major mode for editing Typst files.
 
 \\{typst-mode-map}"
-  :syntax-table typst--code-syntax-table
-  (setq-local font-lock-multiline nil
-    font-lock-defaults '(typst--code-font-lock-keywords))
-  )
+    :syntax-table typst--code-syntax-table
+    (setq-local font-lock-multiline nil
+        font-lock-defaults '(typst--code-font-lock-keywords))
+    )
 
 (define-hostmode typst--poly-hostmode
   :mode 'typst--markup-mode)
 
 (define-innermode typst--poly-innermode
-  :mode 'typst--code-mode
-  :head-matcher "{"
-  :tail-matcher "}"
-  :head-mode 'host
-  :tail-mode 'host)
+    :mode 'typst--code-mode
+    :head-matcher "[^\\]{"
+    :tail-matcher "\\([^\\]}\\|^}\\)"
+    :head-mode 'host
+    :tail-mode 'host)
 
+;; ;;;###autoload
 (define-polymode typst-mode
-  :hostmode 'typst--poly-hostmode
-  :innermodes '(typst--poly-innermode))
+    :hostmode 'typst--poly-hostmode
+    :innermodes '(typst--poly-innermode))
 
+;; TODO support treesit
 ;; (define-polymode typst-mode
 ;;   :hostmode 'poly-markup-hostmode
 ;;   :innermodes '())
 
-;; TODO support treesit
 ;; ;;;###autoload
 ;; (define-derived-mode typst-ts-mode typst-base-mode "Typst"
 ;;   "Major mode for editing Typst files.
