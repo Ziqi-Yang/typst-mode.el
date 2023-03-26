@@ -34,9 +34,13 @@
 
   body
 }
+// single line comment
+/* multiple
+line comment */
 
-// Take a look at the file `template.typ` in the file panel
-// to customize this template and discover how it works.
+= styles
+*strong* _emphasized_ `hello` https://typst.app/ <label> @reference
+
 #show: project.with(
   title: "Test",
   authors: (
@@ -45,10 +49,6 @@
   ),
   date: "March 23, 2023",
 )
-
-// We generated the example code below so you can see how
-// your document will look. Go ahead and replace it with
-// your own content!
 
 #let amazed(term, color: blue) = {
   text(color, box[✨ #term "asdf" ✨])

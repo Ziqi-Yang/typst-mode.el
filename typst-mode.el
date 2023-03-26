@@ -33,6 +33,7 @@
 ;;; Customization:
 ;;; Code:
 (require 'polymode)
+(require 'rx)
 
 (defgroup typst-mode nil
   "Typst Writing."
@@ -61,41 +62,185 @@
   "Face for keyword."
   :group 'typst-mode-faces)
 
+(defface typst-mode-comment-face
+  '((t :inherit font-lock-comment-face))
+  "Face for comment."
+  :group 'typst-mode-faces)
+
 (defface typst-mode-function-name-face
   '((t :inherit font-lock-function-name-face))
   "Face for function name."
   :group 'typst-mode-faces)
 
-(defface typst-mode-markup-italic-face
+(defface typst-mode-field-name-face
+  '((t :inherit font-lock-string-face))
+  "Face for field name."
+  :group 'typst-mode-faces)
+
+(defface typst-mode-method-name-face
+  '((t :inherit typst-mode-field-name-face))
+  "Face for function name."
+  :group 'typst-mode-faces)
+
+(defface typst-mode-markup-emphasis-face
   '((t :slant italic))
-  "Face for builtins."
+  "Face for emphasis text."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-strong-face
+  '((t :weight bold))
+  "Face for strong text."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-underline-face
+  '((t :underline t))
+  "Face for underline text."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-raw-text-face
+  '((t :foreground "dim gray"))
+  "Face for raw-text."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-label-reference-face
+  '((t :foreground "blue"))
+  "Face for label and reference."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-heading-1-face
+  '((t :weight semi-bold :height 150))
+  "Face for heading 1."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-heading-2-face
+  '((t :inherit typst-mode-markup-heading-1-face :height 140))
+  "Face for heading 2."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-heading-3-face
+  '((t :inherit typst-mode-markup-heading-1-face :height 130))
+  "Face for heading 3."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-heading-4-face
+  '((t :inherit typst-mode-markup-heading-1-face :height 120))
+  "Face for heading 4."
+  :group 'typst-mode-markup-faces)
+
+(defface typst-mode-markup-heading-5-face
+  '((t :inherit typst-mode-markup-heading-1-face :height 110))
+  "Face for heading 5."
   :group 'typst-mode-markup-faces)
 
 ;; @ corresponding variables ============
 (defvar typst-mode-keyword-face  'typst-mode-keyword-face
   "Face name to use for keywords.")
 
+(defvar typst-mode-comment-face  'typst-mode-comment-face
+  "Face name to use for comment.")
+
 (defvar typst-mode-function-name-face  'typst-mode-function-name-face
-  "Face name to use for italic texts.")
+  "Face name to use for function names.")
 
-(defvar typst-mode-markup-italic-face  'typst-mode-markup-italic-face
-  "Face name to use for italic texts.")
+(defvar typst-mode-field-name-face  'typst-mode-field-name-face
+  "Face name to use for field names.")
 
-;;; Keywords ===============================================
-(defvar typst-global-keywords
+(defvar typst-mode-method-name-face  'typst-mode-method-name-face
+  "Face name to use for method names.")
+
+(defvar typst-mode-markup-emphasis-face  'typst-mode-markup-emphasis-face
+  "Face name to use for emphasis text.")
+
+(defvar typst-mode-markup-strong-face  'typst-mode-markup-strong-face
+  "Face name to use for strong text.")
+
+(defvar typst-mode-markup-underline-face  'typst-mode-markup-underline-face
+  "Face name to use for underline text.")
+
+(defvar typst-mode-markup-raw-text-face  'typst-mode-markup-raw-text-face
+  "Face name to use for raw text.")
+
+(defvar typst-mode-markup-label-reference-face  'typst-mode-markup-label-reference-face
+  "Face name to use for label and reference.")
+
+(defvar typst-mode-markup-heading-1-face  'typst-mode-markup-heading-1-face
+  "Face name to use for heading 1.")
+
+(defvar typst-mode-markup-heading-2-face  'typst-mode-markup-heading-2-face
+  "Face name to use for heading 2.")
+
+(defvar typst-mode-markup-heading-3-face  'typst-mode-markup-heading-3-face
+  "Face name to use for heading 3.")
+
+(defvar typst-mode-markup-heading-4-face  'typst-mode-markup-heading-4-face
+  "Face name to use for heading 4.")
+
+(defvar typst-mode-markup-heading-5-face  'typst-mode-markup-heading-5-face
+  "Face name to use for heading 5.")
+
+;;; Regexps & Keywords =======================================
+
+(defconst typst--markup-comment-regexp ;; don't interfer URLs
+  (rx (or (and (or bol (1+ whitespace)) "//" (*? anything) eol)
+        (and (or bol (1+ whitespace)) "/*" (*? anything) "*/"))))
+
+(defconst typst--markup-emphasis-regexp
+  (rx (1+ blank) "_" (1+ (not blank)) "_" (1+ blank)))
+
+(defconst typst--markup-raw-text-regexp
+  (rx "`" (1+ (not blank)) "`"))
+
+(defconst typst--markup-link-regexp
+  (rx (or "http://" "https://") (1+ (or alnum ":" "." "/")))) ;; TODO not perfect
+
+(defconst typst--markup-label-regexp
+  (rx "<" (1+ (not punct)) ">"))
+
+(defconst typst--markup-reference-regexp
+  (rx "@" (1+ (not punct))))
+
+(defconst typst--markup-heading-1-regexp
+  (rx bol (* blank) "=" (1+ blank) (seq (? (not blank)) (* not-newline))))
+
+(defconst typst--markup-heading-2-regexp
+  (rx bol (* blank) "==" (1+ blank) (seq (? (not blank)) (* not-newline))))
+
+(defconst typst--markup-heading-3-regexp
+  (rx bol (* blank) "===" (1+ blank) (seq (? (not blank)) (* not-newline))))
+
+(defconst typst--markup-heading-4-regexp
+  (rx bol (* blank) "====" (1+ blank) (seq (? (not blank)) (* not-newline))))
+
+(defconst typst--markup-heading-5-regexp
+  (rx bol (* blank) "=====" (1+ blank) (seq (? (not blank)) (* not-newline))))
+
+(defvar typst--global-keywords
   '("#let" "#set" "#show" "#if" "#for" "#while" "#include" "#import")
   "Keywords for typst mode that are in the global scope.")
 
 (defvar typst--markup-font-lock-keywords
-  `((,(regexp-opt typst-global-keywords t) . typst-mode-keyword-face)
+  `((,(regexp-opt typst--global-keywords t) . typst-mode-keyword-face)
      ("#\\w+" . typst-mode-function-name-face)
+     (,typst--markup-comment-regexp . font-lock-comment-face)
+     ("\\*\\w+\\*" . typst-mode-markup-strong-face) ;; strong
+     (,typst--markup-emphasis-regexp . typst-mode-markup-emphasis-face) ;; emphasized
+     (,typst--markup-raw-text-regexp . typst-mode-markup-raw-text-face) ;; raw text
+     (,typst--markup-link-regexp . typst-mode-markup-underline-face) ;; link
+     (,typst--markup-label-regexp . typst-mode-markup-label-reference-face) ;; label
+     (,typst--markup-reference-regexp . typst-mode-markup-label-reference-face) ;; reference
+     ;; headings
+     (,typst--markup-heading-1-regexp . typst-mode-markup-heading-1-face) ;; heading 1
+     (,typst--markup-heading-2-regexp . typst-mode-markup-heading-2-face) ;; heading 2
+     (,typst--markup-heading-3-regexp . typst-mode-markup-heading-3-face) ;; heading 3
+     (,typst--markup-heading-4-regexp . typst-mode-markup-heading-4-face) ;; heading 4
+     (,typst--markup-heading-5-regexp . typst-mode-markup-heading-5-face) ;; heading 5
      )
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--code-font-lock-keywords
   nil
   ;; `((
-  ;;     ,(regexp-opt typst-global-keywords t) . typst-mode-keyword-face)
+  ;;     ,(regexp-opt typst--global-keywords t) . typst-mode-keyword-face)
   ;;    ("#\\w+" . typst-mode-function-name-face)
   ;;    )
   "Minimal highlighting expressions for typst mode")
@@ -104,8 +249,6 @@
 (defvar typst--markup-syntax-table
   (let ((syntax-table (make-syntax-table)))
     (modify-syntax-entry ?\" "." syntax-table) ;; change the default syntax entry for double quote(string quote character '"')
-    (modify-syntax-entry ?/ ". 124b" syntax-table)
-    (modify-syntax-entry ?* ". 23" syntax-table)
     (modify-syntax-entry ?\n "> b" syntax-table)
     syntax-table)
   "Syntax table for `typst--markup-mode'.")
@@ -113,6 +256,8 @@
 (defvar typst--code-syntax-table
   (let ((syntax-table (make-syntax-table typst--markup-syntax-table)))
     (modify-syntax-entry ?\" "\"" syntax-table)
+    (modify-syntax-entry ?/ ". 124b" syntax-table)
+    (modify-syntax-entry ?* ". 23" syntax-table)
     syntax-table)
   "Syntax table for `typst--code-mode'.")
 
@@ -143,28 +288,11 @@ implementations: `typst-mode' and `typst-ts-mode'."
   (setq-local font-lock-multiline nil
     font-lock-defaults '(typst--code-font-lock-keywords)))
 
-(define-hostmode typst--poly-code-hostmode
-  :mode 'typst--code-mode)
-
-(define-innermode typst--poly-code-innermode
-  :mode 'typst--markup-mode
-  :head-matcher "\\["
-  :tail-matcher "\\]"
-  ;; :head-matcher "[^\\]{\\["
-  ;; :tail-matcher "\\([^\\]\\]\\|^\\]\\)"
-  :head-mode 'host
-  :tail-mode 'host)
-
-(define-polymode typst-poly-code-mode
-  :hostmode 'typst--poly-code-hostmode
-  :innermodes '(typst--poly-code-innermode))
-
 (define-hostmode typst--poly-hostmode
   :mode 'typst--markup-mode)
 
-(define-innermode typst--poly-innermode
-  :mode 'typst-poly-code-mode
-  ;; :mode 'typst--code-mode
+(define-innermode typst--poly-code-innermode
+  :mode 'typst--code-mode
   :head-matcher "[^\\]{"
   :tail-matcher "\\([^\\]}\\|^}\\)"
   :head-mode 'host
@@ -173,8 +301,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
 ;; ;;;###autoload
 (define-polymode typst-mode
   :hostmode 'typst--poly-hostmode
-  :innermodes '(typst--poly-innermode)
-  )
+  :innermodes '(typst--poly-code-innermode))
 
 ;; TODO support treesit
 ;; (define-polymode typst-mode

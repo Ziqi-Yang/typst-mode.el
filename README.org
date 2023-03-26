@@ -2,10 +2,14 @@
 
 An Emacs major mode for [[https://typst.app/][typst]] markup-based typesetting system.
 
-This package is in early development.
+Since the language specification of =typst= is somewhat complicated to parse, the mode currently only provide limited syntax highlighting feature :(. Maybe complicated one should be implemented into lsp server?
 
-* Special Thanks
-Special thanks to [[https://github.com/fxbois/web-mode/blob/master/web-mode.el][web-mode]], there won't be =typst-mode= without it.
+* Current Shortages
+1. no syntax support for the context block =[ ]= which is located in the code block ={ }= \\
+   this problem possibly can be solved with *nested polymode*. However, currently there is no official support from polymode developer for this function.
 
+* To Dos
+1. [ ] add treesit mode / hand-written syntax highlighter imitating =web-mode=
+   
 * Development
 1. try =treesit=, https://github.com/emacs-mirror/emacs/blob/master/admin/notes/tree-sitter/starter-guide
