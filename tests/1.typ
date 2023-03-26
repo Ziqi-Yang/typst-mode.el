@@ -1,7 +1,7 @@
 // The project function defines how your document looks.
 // It takes your content and some metadata and formats it.
 // Go ahead and customize it to your liking!
-#let project(title: "", authors: (), date: none, body) = { 
+#let project(title: "", authors: (), date: none, body) = {
   // Set the document's basic properties.
   set document(author: authors.map(a => a.name), title: title)
   set page(numbering: "1", number-align: center)
@@ -40,8 +40,8 @@
 #show: project.with(
   title: "Test",
   authors: (
-    (name: "author 1", email: "author1@anonyn.anonyn"),
-    (name: "author 2", email: "author2@anonym.anonyn"),
+    (name: "author 1", email: "author1@anonym.anonym"),
+    (name: "author 2", email: "author2@anonym.anonym"),
   ),
   date: "March 23, 2023",
 )
@@ -51,19 +51,24 @@
 // your own content!
 
 #let amazed(term, color: blue) = {
-  text(color, box[✨ #term ✨])
+  text(color, box[✨ #term "asdf" ✨])
 }
 
 = Introduction
-#lorem(30)
-
+#lorem(2)
 == In this paper
-#lorem(20)
-
 === Contributions
-#lorem(30)
-
-= Related Work
-#lorem(20)
 
 \{ This is not code block \}
+
+#let name = "Typst"
+This is #name's documentation.
+It explains #name.
+
+#let add(x, y) = x + y
+Sum is #add(2, 3).
+
+#emph[Hello] \
+#emoji.face \
+#"hello".len()
+
