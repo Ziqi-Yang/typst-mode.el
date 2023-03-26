@@ -9,7 +9,9 @@ Since the language specification of =typst= is somewhat complicated to parse, th
    this problem possibly can be solved with *nested polymode*. However, currently there is no official support from polymode developer for this function?
 
 * To Dos
-1. [ ] add treesit mode / hand-written syntax highlighter imitating =web-mode=
+1. [ ] add treesit mode
+2. [ ] support inner math
+3. [ ] code block highlight
    
 * Development
 1. try =treesit=, https://github.com/emacs-mirror/emacs/blob/master/admin/notes/tree-sitter/starter-guide
