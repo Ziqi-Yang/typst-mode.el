@@ -1,5 +1,7 @@
 #+TITLE: Typst Mode
 
+Note: I'm a Emacs lisp newbie, and this is my first package. I really appreciate your help(issues, pull requests and etc.)!
+
 An Emacs major mode for [[https://typst.app/][typst]] markup-based typesetting system.
 
 Since the language specification of =typst= is somewhat complicated to parse, the mode currently only provide limited syntax highlighting feature :(. Maybe complicated one should be implemented into lsp server?
@@ -12,6 +14,3 @@ Since the language specification of =typst= is somewhat complicated to parse, th
 1. [ ] add treesit mode
 2. [ ] support inner math
 3. [ ] code block highlight
-   
-* Development
-1. try =treesit=, https://github.com/emacs-mirror/emacs/blob/master/admin/notes/tree-sitter/starter-guide

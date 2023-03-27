@@ -230,6 +230,9 @@
 (defconst typst--markup-term-list-regexp
   (rx bol (* blank) "/" (1+ blank) (group-n 1 (1+ (not ":") )) ":" (* not-newline)))
 
+(defconst typst--markup-term-list-regexp
+  (rx bol (* blank) "/" (1+ blank) (group-n 1 (1+ (not ":") )) ":" (* not-newline)))
+
 (defvar typst--global-keywords
   '("#let" "#set" "#show" "#if" "#for" "#while" "#include" "#import")
   "Keywords for typst mode that are in the global scope.")
@@ -338,20 +341,141 @@ implementations: `typst-mode' and `typst-ts-mode'."
   :head-mode 'host
   :tail-mode 'host)
 
-;; (define-innermode typst--poly-math-innermode
-;;   :mode 'typst--math-mode
-;;   ;; header-matcher: the first '$' on the line. 
-;;   :head-matcher (cons (rx bol (* (not "$")) (group-n 1 "$") (* not-newline)) 1)
-;;   ;; tail-matcher: the second '$' on the line 
-;;   :tail-matcher "\\$"
-;;   :head-mode 'host
-;;   :tail-mode 'host)
+;; FIXME
+(defun typst--find-unmarked-dollar (type &optional backward)
+  "Search for the next unmarked `$` character, where the `math-head` and `math-end` text properties are not set.
+If BACKWARD is non-nil, search backward instead of forward."
+  (let ((search-fn (if backward 're-search-backward 're-search-forward))
+         (opposite-search-fn (if backward 're-search-forward 're-search-backward))
+         (search-pattern "\\$")
+         (count-need 1)
+         (count 0))
+    ;; only execute when (type=math-head) or (type=math-tail and backward=nil)
+    (if (or (eq type 'math-head)
+          (and (eq type 'math-tail) (eq backward nil)))
+      (progn
+        ;; first search backward to know the previous condition and set the count-need variable
+        (save-excursion
+          (if (not (funcall opposite-search-fn search-pattern nil t))
+            (setq count-need
+              (if (eq type 'math-head)
+                (if backward 2 1)
+                2))
+            (let ((math-head (get-text-property (1- (point) ) 'math-head))
+                   (math-tail (get-text-property (1- (point) ) 'math-tail)))
+              (cond
+                ((eq type 'math-head)
+                  (if backward
+                    (cond
+                      ((and (eq math-head nil) (eq math-tail nil))
+                        (setq count-need 2))
+                      ((eq math-tail t)
+                        (setq count-need 1))
+                      ((eq math-head t)
+                        (setq count-need 2))
+                      (t ;; should never occur
+                        ()))
+                    (cond
+                      ((and (eq math-head nil) (eq math-tail nil))
+                        (setq count-need 1))
+                      ((eq math-tail t)
+                        (setq count-need 1))
+                      ((eq math-head t)
+                        (setq count-need 2))
+                      (t ;; should never occur
+                        ()))))
+                ((eq type 'math-tail) ;; only search forward
+                  (cond
+                    ((and (eq math-head nil) (eq math-tail nil))
+                      (setq count-need 2))
+                    ((eq math-tail t)
+                      (setq count-need 2))
+                    ((eq math-head t)
+                      (setq count-need 1))
+                    (t ;; should never occur
+                      ()))))) ))
+        ;; set count-need variable also according to the next occurance
+        (when (funcall search-fn search-pattern nil t)
+          (let ((math-head (get-text-property (1- (point) ) 'math-head))
+                 (math-tail (get-text-property (1- (point) ) 'math-tail)))
+            (cond
+              ((eq type 'math-head)
+                ;; backward and forward are same
+                (cond
+                  ((and (eq math-head nil) (eq math-tail nil))
+                    ())
+                  ((eq math-tail t)
+                    (setq count-need 1))
+                  ((eq math-head t)
+                    (setq count-need 2))
+                  (t ;; should never occur
+                    ())))
+              ((eq type 'math-tail) ;; only support search forward
+                (cond
+                  ((and (eq math-head nil) (eq math-tail nil))
+                    ())
+                  ((eq math-tail t)
+                    (setq count-need 2))
+                  ((eq math-head t)
+                    (setq count-need 1))
+                  (t ;; should never occur
+                    ()))))) )
+        (while (and (/= count count-need)
+                 (funcall search-fn search-pattern nil t))
+          (let ((math-head (get-text-property (1- (point) ) 'math-head))
+                 (math-tail (get-text-property (1- (point) ) 'math-tail)))
+            (cond
+              ((eq type 'math-head)
+                (if math-head
+                  (setq count 0)
+                  (setq count (1+ count))))
+              ((eq type 'math-tail)
+                (if math-tail
+                  (setq count 0)
+                  (setq count (1+ count)))))))
+        (if (= count count-need)
+          (if (> (point) 1)
+            (progn
+              (put-text-property (1- (point)) (point) type t)
+              (1- (point) ))
+            (progn
+              (put-text-property 1 2 type t)
+              1)
+            ))))))
+;; (typst--poly-math-find-head 1)
+;; $ $ $ $ $ $ $
+
+(defun typst--poly-math-find-head (ahead)
+  "See `pm-fun-matcher'."
+  (let ((backward (if (< ahead 0) t)))
+    (let ((the_point (typst--find-unmarked-dollar 'math-head backward)))
+      (if the_point
+        (progn
+          (put-text-property the_point (1+ the_point) 'math-head t)
+          (cons the_point (1+ the_point)))))))
+
+(defun typst--poly-math-find-tail (_args)
+  (let ((the_point (typst--find-unmarked-dollar 'math-tail)))
+    (if the_point
+      (progn
+        (put-text-property the_point (1+ the_point) 'math-tail t)
+        (cons the_point (1+ the_point))))))
+
+(define-innermode typst--poly-math-innermode
+  :mode 'typst--math-mode
+  ;; header-matcher: the first '$' on the line. 
+  ;; :head-matcher (cons (rx bol (* (not "$")) (group-n 1 "$") (* not-newline)) 1)
+  ;; tail-matcher: the second '$' on the line 
+  :head-matcher 'typst--poly-math-find-head
+  :tail-matcher 'typst--poly-math-find-tail
+  :head-mode 'host
+  :tail-mode 'host)
 
 ;; ;;;###autoload
 (define-polymode typst-mode
   :hostmode 'typst--poly-hostmode
   :innermodes '(typst--poly-code-innermode
-                 ;; typst--poly-math-innermode
+                 ;; typst--poly-math-innermode ;; FIXME
                  ))
 
 ;; TODO support treesit

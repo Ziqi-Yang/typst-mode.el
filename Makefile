@@ -1,4 +1,4 @@
-load_polymode := -L /tmp/polymode
+load_polymode := -L ~/.emacs.d/.local/straight/repos/polymode
 load_typst_mode := -l ~/.emacs.d/modules/languages/typst-mode/typst-mode.el
 test_file := ~/.emacs.d/modules/languages/typst-mode/tests/1.typ
 

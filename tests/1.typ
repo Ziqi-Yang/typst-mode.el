@@ -50,6 +50,8 @@ line comment */
 / Ligature: A merged glyph.
 / 你好.abc:asdfasfs asdf
 
+$ 1 + 1 $
+
 #show: project.with(
   title: "Test",
   authors: (
