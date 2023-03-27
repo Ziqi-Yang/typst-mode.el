@@ -4,11 +4,39 @@ Note: I'm a Emacs lisp newbie, and this is my first package. I really appreciate
 
 An Emacs major mode for [[https://typst.app/][typst]] markup-based typesetting system.
 
-Since the language specification of =typst= is somewhat complicated to parse, the mode currently only provide limited syntax highlighting feature :(. Maybe complicated one should be implemented into lsp server?
+Since the language style of =typst= is somewhat complicated to parse(at least for me), this package currently only provide limited syntax highlighting feature :(. Maybe complicated cases should be implemented into lsp server?
+
+* Current Feature
+** Style
+*** Markup
+| feature          | support | Example              |
+|------------------+---------+----------------------|
+| Paragraph break  | ✓       |                      |
+| Strong emphasis  | ✓       | *strong*               |
+| Emphasis         | ✓       | /emphasis/             |
+| Raw text         | inline  | `print(1)`           |
+| Link             | ✓       | https://typst.app/   |
+| Label            | ✓       | <intro>              |
+| Reference        | ✓       | @intro               |
+| Heading          | ✓       | == Heading=            |
+| Bullet list      | ✓       | - item               |
+| Numbered list    | ✓       | + item               |
+| Term list        | ✓       | / Term: description  |
+| Math             |         | =$x^2$=                |
+| Line break       |         | \                    |
+| Smart quote      |         | 'single' or "double" |
+| Symbol shorthand |         | ~, ---               |
+| Code expression  | name    | =#rect(width: 1cm)=    |
+| Character escape |         | Tweet at us \#ad     |
+| Comment          | ✓       | =/* block */, // line= |
+
+* To Dos
+1. [ ] math mode need fix
 
 * Current Shortages
+For those stuffs cannot be done in short future.
 1. no syntax support for the context block =[ ]= which is located in the code block ={ }= \\
-   this problem possibly can be solved with *nested polymode*. However, currently there is no official support from polymode developer for this function?
+   this problem possibly can be solved with *nested polymode*. However, currently there is no official support for this function?
 
 * To Dos
 1. [ ] add treesit mode
