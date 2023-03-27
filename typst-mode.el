@@ -21,7 +21,7 @@
 ;; Keywords: typst editing typesetting writing
 ;; URL: https://github.com/Ziqi-Yang/typst-mode.el
 ;; License: GNU General Public License >= 3
-;; Package-Requires: ("polymode")
+;; Package-Requires: (polymode)
 
 ;;; Commentary:
 
