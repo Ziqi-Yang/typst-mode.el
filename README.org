@@ -1,12 +1,17 @@
 #+TITLE: Typst Mode
 
-Note: I'm a Emacs lisp newbie, and this is my first package. I really appreciate your help(issues, pull requests and etc.)!
+Note: I'm an Emacs lisp newbie, and this is my first package. I really appreciate your help(issues, pull requests and etc.)!
 
-An Emacs major mode for [[https://typst.app/][typst]] markup-based typesetting system.
+An Emacs major mode for [[https://typst.app/][typst]], a markup-based typesetting system.
 
-Since the language style of =typst= is somewhat complicated to parse(at least for me), this package currently only provide limited syntax highlighting feature :(. Maybe complicated cases should be implemented into lsp server?
+Since the language style of =typst= is somewhat complicated to parse(at least for me), currently this package  only provides limited syntax highlighting feature :( Maybe complicated cases should be implemented into lsp server?
+
+* Requirements
+[[https://github.com/polymode/polymode][polymode]]  \\
+haven't tested emacs version
 
 * Current Feature
+** Functions
 ** Style
 *** Markup
 | feature          | support | Example              |
@@ -31,7 +36,7 @@ Since the language style of =typst= is somewhat complicated to parse(at least fo
 | Comment          | ✓       | =/* block */, // line= |
 
 * To Dos
-1. [ ] math mode need fix
+1. [ ] fix math mode 
 
 * Current Shortages
 For those stuffs cannot be done in short future.
@@ -40,5 +45,4 @@ For those stuffs cannot be done in short future.
 
 * To Dos
 1. [ ] add treesit mode
-2. [ ] support inner math
-3. [ ] code block highlight
+2. [ ] code block highlight
