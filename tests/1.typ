@@ -6,6 +6,7 @@
   set document(author: authors.map(a => a.name), title: title)
   set page(numbering: "1", number-align: center)
   set text(font: "Linux Libertine", lang: "en")
+  set heading(numbering: "1.1")
 
   // Title row.
   align(center)[
@@ -34,25 +35,6 @@
 
   body
 }
-// single line comment
-/* multiple
-line comment */
-
-= styles
-*strong* _emphasized_ `hello` https://typst.app/ <label> @reference
-
-- *Content*
-  - Text
-  - Math
-  + Visualize
-  + Meta
-  
-/ Ligature: A merged glyph.
-/ 你好.abc:asdfasfs asdf
-
-$ 1 + 1 $
-
-\ \aha
 
 #show: project.with(
   title: "Test",
@@ -66,6 +48,26 @@ $ 1 + 1 $
 #let amazed(term, color: blue) = {
   text(color, box[✨ #term "asdf" ✨])
 }
+
+// single line comment
+/* multiple
+line comment */
+
+= styles<label>
+*strong* _emphasized_ `hello` https://typst.app/ @label
+
+- *Content*
+  - Text
+  - Math
+  + Visualize
+  + Meta
+  
+/ Ligature: A merged glyph.
+/ 你好.abc:asdfasfs asdf
+
+$ 1 + 1 $
+
+\ \aha
 
 = Introduction
 #lorem(2)

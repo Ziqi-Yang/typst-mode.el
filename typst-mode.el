@@ -32,6 +32,8 @@
 ;;; Usage:
 ;;; Customization:
 ;;; Code:
+;; TODO change compile-command for typst file
+
 (require 'polymode)
 (require 'rx)
 
@@ -283,12 +285,14 @@
   ;;    )
   "Minimal highlighting expressions for typst mode")
 
-
 (defvar typst--math-font-lock-keywords
   nil
   "Minimal highlighting expressions for typst mode")
 
-;;; Syntax tables ===============================================
+;;; Hooks ===================================================
+(defvar typst-mode-hook nil)
+
+;;; Syntax tables ===========================================
 (defvar typst--base-syntax-table
   (let ((syntax-table (make-syntax-table)))
     (modify-syntax-entry ?\" "." syntax-table) ;; change the default syntax entry for double quote(string quote character '"')
@@ -317,6 +321,24 @@
 ;;     (modify-syntax-entry ?* ". 23" syntax-table)
 ;;     syntax-table)
 ;;   "Syntax table for `typst--code-mode'.")
+
+;;; Keymaps =================================================
+(defvar typst-mode-map
+  (let ((map (make-keymap)))
+    map))
+
+;;; Functions ===============================================
+(defun typst-compile ()
+  "Compile the current typst file using typst."
+  (interactive))
+
+(defun typst-preview ()
+  "Preview the compiled pdf file."
+  (interactive))
+
+(defun typst-watch ()
+  "Watch(real time compile & preview) the corresponding pdf file."
+  (interactive))
 
 ;;; Mode definition =========================================
 (define-derived-mode typst--base-mode prog-mode "Typst"
@@ -463,7 +485,12 @@ If BACKWARD is non-nil, search backward instead of forward."
   :hostmode 'typst--poly-hostmode
   :innermodes '(typst--poly-code-innermode
                  ;; typst--poly-math-innermode ;; FIXME
-                 ))
+                 )
+  "Major mode for editing Typst files.
+
+\\{typst-mode-map}"
+  (run-hooks 'typst-mode-hook)
+  (use-local-map typst-mode-map))
 
 ;; TODO support treesit
 ;; (define-polymode typst-mode
