@@ -142,6 +142,11 @@
   "Face for heading 5."
   :group 'typst-mode-markup-faces)
 
+(defface typst-mode-markup-slash-face
+  '((t :foreground "blue"))
+  "Face for slash."
+  :group 'typst-mode-markup-faces)
+
 ;; @ corresponding variables ============
 (defvar typst-mode-keyword-face  'typst-mode-keyword-face
   "Face name to use for keywords.")
@@ -191,6 +196,9 @@
 (defvar typst-mode-markup-term-list-face  'typst-mode-markup-term-list-face
   "Face name to use for heading 5.")
 
+(defvar typst-mode-markup-slash-face  'typst-mode-markup-slash-face
+  "Face name to use for slash.")
+
 ;;; Regexps & Keywords =======================================
 
 (defconst typst--markup-comment-regexp ;; don't interfer URLs
@@ -233,12 +241,19 @@
 (defconst typst--markup-term-list-regexp
   (rx bol (* blank) "/" (1+ blank) (group-n 1 (1+ (not ":") )) ":" (* not-newline)))
 
-(defvar typst--global-keywords
-  '("#let" "#set" "#show" "#if" "#for" "#while" "#include" "#import")
-  "Keywords for typst mode that are in the global scope.")
+(defconst typst--markup-slash-regexp ;; for line break and escape character
+  (rx "\\" (? (not blank))))
+
+(defvar typst--base-keywords
+  '("let" "set" "show" "if" "for" "while" "include" "import")
+  "Keywords for typst mode.")
+
+(defvar typst--markup-keywords
+  (mapcar #'(lambda (keyword) (concat "#" keyword)) typst--base-keywords)
+  "Keywords for typst markup mode")
 
 (defvar typst--markup-font-lock-keywords
-  `((,(regexp-opt typst--global-keywords t) . typst-mode-keyword-face)
+  `((,(regexp-opt typst--markup-keywords t) . typst-mode-keyword-face)
      ("#\\w+" . typst-mode-function-name-face)
      (,typst--markup-comment-regexp . font-lock-comment-face)
      ("\\*\\w+\\*" . typst-mode-markup-strong-face) ;; strong
@@ -256,6 +271,7 @@
      ;; do nothing to bullet list
      ;; do nothing to Numbered list
      (,typst--markup-term-list-regexp 1 typst-mode-markup-term-list-face) ;; term list
+     (,typst--markup-slash-regexp . typst-mode-markup-slash-face) ;; slash(line break and escape character)
      )
   "Minimal highlighting expressions for typst mode")
 
@@ -273,15 +289,21 @@
   "Minimal highlighting expressions for typst mode")
 
 ;;; Syntax tables ===============================================
-(defvar typst--markup-syntax-table
+(defvar typst--base-syntax-table
   (let ((syntax-table (make-syntax-table)))
     (modify-syntax-entry ?\" "." syntax-table) ;; change the default syntax entry for double quote(string quote character '"')
     (modify-syntax-entry ?\n "> b" syntax-table)
     syntax-table)
   "Syntax table for `typst--markup-mode'.")
 
+(defvar typst--markup-syntax-table
+  (let ((syntax-table (make-syntax-table typst--base-syntax-table)))
+    (modify-syntax-entry ?\\ "\\" syntax-table)
+    syntax-table)
+  "Syntax table for `typst--markup-mode'.")
+
 (defvar typst--code-syntax-table
-  (let ((syntax-table (make-syntax-table typst--markup-syntax-table)))
+  (let ((syntax-table (make-syntax-table typst--base-syntax-table)))
     (modify-syntax-entry ?\" "\"" syntax-table)
     (modify-syntax-entry ?/ ". 124b" syntax-table)
     (modify-syntax-entry ?* ". 23" syntax-table)
@@ -289,7 +311,7 @@
   "Syntax table for `typst--code-mode'.")
 
 ;; (defvar typst--math-syntax-table
-;;   (let ((syntax-table (make-syntax-table typst--markup-syntax-table)))
+;;   (let ((syntax-table (make-syntax-table typst--base-syntax-table)))
 ;;     (modify-syntax-entry ?\" "\"" syntax-table)
 ;;     (modify-syntax-entry ?/ ". 124b" syntax-table)
 ;;     (modify-syntax-entry ?* ". 23" syntax-table)

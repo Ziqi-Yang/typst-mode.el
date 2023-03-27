@@ -23,7 +23,7 @@ Since the language style of =typst= is somewhat complicated to parse(at least fo
 | Numbered list    | ✓       | + item               |
 | Term list        | ✓       | / Term: description  |
 | Math             |         | =$x^2$=                |
-| Line break       |         | \                    |
+| Line break       | ✓       | \                    |
 | Smart quote      |         | 'single' or "double" |
 | Symbol shorthand |         | ~, ---               |
 | Code expression  | name    | =#rect(width: 1cm)=    |

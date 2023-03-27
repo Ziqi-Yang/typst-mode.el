@@ -52,6 +52,8 @@ line comment */
 
 $ 1 + 1 $
 
+\ \aha
+
 #show: project.with(
   title: "Test",
   authors: (
