@@ -1,4 +1,5 @@
 // The project function defines how your document looks.
+// I'm his father Jeffery
 // It takes your content and some metadata and formats it.
 // Go ahead and customize it to your liking!
 #let project(title: "", authors: (), date: none, body) = {
