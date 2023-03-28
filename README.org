@@ -30,7 +30,7 @@ haven't tested emacs version
 | Smart quote      |         | 'single' or "double" |
 | Symbol shorthand |         | ~, ---               |
 | Code expression  | name    | =#rect(width: 1cm)=    |
-| Character escape |         | Tweet at us \#ad     |
+| Character escape | ✓       | Tweet at us \#ad     |
 | Comment          | ✓       | =/* block */, // line= |
 
 * To Dos
