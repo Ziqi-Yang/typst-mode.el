@@ -11,9 +11,9 @@ haven't tested emacs version
 
 * Current Feature
 ** Functions
-=typst-compile=  (default bind: =C-c C-c=) \\
-=typst-preview= (default bind: =C-c C-p=) \\
-=typst-toggle-watch= (default bind: =C-c C-w=; also provide =typst-watch= and =typst-stop-watch=)
+1. =typst-compile=  (default bind: =C-c C-c=)
+2. =typst-preview= (default bind: =C-c C-p=)
+3. =typst-toggle-watch= (default bind: =C-c C-w=; also provide =typst-watch= and =typst-stop-watch=)
 ** Style
 *** Markup
 | feature          | support | Example              |
