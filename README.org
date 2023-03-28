@@ -11,9 +11,9 @@ haven't tested emacs version
 
 * Current Feature
 ** Functions
-=typst-compile=  \\
-=typst-preview= \\
-=typst-watch= 
+=typst-compile=  (default bind: =C-c C-c=) \\
+=typst-preview= (default bind: =C-c C-p=) \\
+=typst-toggle-watch= (default bind: =C-c C-w=; also provide =typst-watch= and =typst-stop-watch=)
 ** Style
 *** Markup
 | feature          | support | Example              |
@@ -36,6 +36,9 @@ haven't tested emacs version
 | Code expression  | name    | =#rect(width: 1cm)=    |
 | Character escape | ✓       | Tweet at us \#ad     |
 | Comment          | ✓       | =/* block */, // line= |
+
+* Customization
+faces and custom variables with prefix =typst= or =typst-mode=
 
 * To Dos
 1. [ ] fix math mode 

@@ -346,7 +346,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'typst-compile)
     (define-key map (kbd "C-c C-p") 'typst-preview)
-    (define-key map (kbd "C-c C-w") 'typst-watch)
+    (define-key map (kbd "C-c C-w") 'typst-toggle-watch)
     map))
 
 ;;; Functions ===============================================
@@ -367,19 +367,37 @@
 (defun typst-preview ()
   "Preview the compiled pdf file."
   (interactive)
-  (start-process-shell-command "typst preview pdf" typst-buffer-name
+  (start-process-shell-command "typst preview" typst-buffer-name
 		(format typst-pdf-preview-command (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".pdf"))))
 
 (defun typst-watch ()
   "Watch(real time compile & preview) the corresponding pdf file."
   (interactive)
   (let ((file-name (file-name-nondirectory buffer-file-name))
-         (compile-process-name "typst watch" ))
+         (watch-process-name "typst watch" ))
     ;; TODO check process existence
-    (unless (typst--process-exists-p compile-process-name)
-      (start-process-shell-command compile-process-name typst-buffer-name
+    (unless (typst--process-exists-p watch-process-name)
+      (start-process-shell-command watch-process-name typst-buffer-name
         (format (format (concat typst-executable-location " -w %s %s") file-name (concat (file-name-sans-extension file-name) ".pdf")))))
     (typst-preview)))
+
+(defun typst-stop-watch ()
+  "Stop typst watch process"
+  (interactive)
+  (let ((watch-process-name "typst watch")
+         (preview-process-name "typst preview"))
+    (delete-process watch-process-name)
+    ;; Note some command run outside emacs cannot be deleted (also the process only exists when calling it)
+    (delete-process preview-process-name)))
+
+(defun typst-toggle-watch()
+  "Toggle tyspt watch."
+  (interactive)
+  (let ((watch-process-name "typst watch" )
+         (preview-process-name "typst watch" ))
+    (if (typst--process-exists-p watch-process-name)
+      (typst-stop-watch)
+      (typst-watch))))
 
 ;;; Mode definition =========================================
 (define-derived-mode typst--base-mode prog-mode "Typst"
