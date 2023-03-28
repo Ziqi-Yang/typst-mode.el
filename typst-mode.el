@@ -63,6 +63,25 @@
   :group 'typst-mode-faces
   :group 'faces)
 
+;;; Variables ===============================================
+(defcustom typst-buffer-name
+  "*typst-mode*"
+  "The output buffer name for some compilation and preview command."
+  :type 'string
+  :group 'typst-mode)
+
+(defcustom typst-executable-location
+  "typst"
+  "The location for typst executable. If it is in your PATH, use just the name of the executable."
+  :type 'string
+  :group 'typst-mode)
+
+(defcustom typst-pdf-preview-command
+  "xdg-open %s"
+  "Command to open/preview pdf. %s stand for the pdf file name."
+  :type 'string
+  :group 'typst-mode)
+
 ;;; Faces ===================================================
 (defface typst-mode-keyword-face
   '((t :inherit font-lock-keyword-face))
@@ -324,21 +343,43 @@
 
 ;;; Keymaps =================================================
 (defvar typst-mode-map
-  (let ((map (make-keymap)))
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'typst-compile)
+    (define-key map (kbd "C-c C-p") 'typst-preview)
+    (define-key map (kbd "C-c C-w") 'typst-watch)
     map))
 
 ;;; Functions ===============================================
+(defun typst--process-exists-p (process-name)
+  "Return non-nil if a process with PROCESS-NAME is currently running."
+  (let ((process-list (process-list)))
+    (catch 'found
+      (dolist (process process-list)
+        (when (string= process-name (process-name process))
+          (when (eq (process-status process) 'run)
+            (throw 'found t)))))))
+
 (defun typst-compile ()
   "Compile the current typst file using typst."
-  (interactive))
+  (interactive)
+  (compile compile-command))
 
 (defun typst-preview ()
   "Preview the compiled pdf file."
-  (interactive))
+  (interactive)
+  (start-process-shell-command "typst preview pdf" typst-buffer-name
+		(format typst-pdf-preview-command (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".pdf"))))
 
 (defun typst-watch ()
   "Watch(real time compile & preview) the corresponding pdf file."
-  (interactive))
+  (interactive)
+  (let ((file-name (file-name-nondirectory buffer-file-name))
+         (compile-process-name "typst watch" ))
+    ;; TODO check process existence
+    (unless (typst--process-exists-p compile-process-name)
+      (start-process-shell-command compile-process-name typst-buffer-name
+        (format (format (concat typst-executable-location " -w %s %s") file-name (concat (file-name-sans-extension file-name) ".pdf")))))
+    (typst-preview)))
 
 ;;; Mode definition =========================================
 (define-derived-mode typst--base-mode prog-mode "Typst"
@@ -486,11 +527,17 @@ If BACKWARD is non-nil, search backward instead of forward."
   :innermodes '(typst--poly-code-innermode
                  ;; typst--poly-math-innermode ;; FIXME
                  )
+  :keymap typst-mode-map
+  nil
   "Major mode for editing Typst files.
 
 \\{typst-mode-map}"
   (run-hooks 'typst-mode-hook)
-  (use-local-map typst-mode-map))
+  ;; set compile-command
+  (let ((file-name (file-name-nondirectory (buffer-file-name))))
+    (setq-local compile-command
+      (concat typst-executable-location
+        " " file-name " " (concat (file-name-sans-extension file-name) ".pdf")))))
 
 ;; TODO support treesit
 ;; (define-polymode typst-mode
