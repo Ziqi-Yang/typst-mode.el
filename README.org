@@ -5,11 +5,13 @@ An Emacs major mode for [[https://typst.app/][typst]], a markup-based typesettin
 Since the language style of =typst= is somewhat complicated to parse(at least for me), currently this package  only provides limited syntax highlighting feature :( Maybe complicated cases should be implemented into lsp server?
 
 * Requirements
-[[https://github.com/typst/typst][typst]] \\
-[[https://github.com/polymode/polymode][polymode]]  \\
-haven't tested emacs version
+[[https://github.com/typst/typst][typst]]
 
-* Current Feature
+[[https://github.com/polymode/polymode][polymode]]
+
+minium Emacs version hasn't been tested
+
+* Current Features
 ** Functions
 1. =typst-compile=  (default bind: =C-c C-c=)
 2. =typst-preview= (default bind: =C-c C-p=)

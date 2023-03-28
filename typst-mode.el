@@ -32,7 +32,6 @@
 ;;; Usage:
 ;;; Customization:
 ;;; Code:
-;; TODO change compile-command for typst file
 
 (require 'polymode)
 (require 'rx)
@@ -64,20 +63,27 @@
   :group 'faces)
 
 ;;; Variables ===============================================
-(defcustom typst-buffer-name
-  "*typst-mode*"
+(defcustom typst-markup-tab-width  4
+  "Default tab width for typst markup mode"
+  :type 'integer
+  :group 'typst-mode)
+
+(defcustom typst-code-tab-width  4
+  "Default tab width for typst code mode"
+  :type 'integer
+  :group 'typst-mode)
+
+(defcustom typst-buffer-name  "*typst-mode*"
   "The output buffer name for some compilation and preview command."
   :type 'string
   :group 'typst-mode)
 
-(defcustom typst-executable-location
-  "typst"
+(defcustom typst-executable-location  "typst"
   "The location for typst executable. If it is in your PATH, use just the name of the executable."
   :type 'string
   :group 'typst-mode)
 
-(defcustom typst-pdf-preview-command
-  "xdg-open %s"
+(defcustom typst-pdf-preview-command  "xdg-open %s"
   "Command to open/preview pdf. %s stand for the pdf file name."
   :type 'string
   :group 'typst-mode)
@@ -349,6 +355,8 @@
     (define-key map (kbd "C-c C-w") 'typst-toggle-watch)
     map))
 
+;;; Indentation =============================================
+
 ;;; Functions ===============================================
 (defun typst--process-exists-p (process-name)
   "Return non-nil if a process with PROCESS-NAME is currently running."
@@ -375,7 +383,6 @@
   (interactive)
   (let ((file-name (file-name-nondirectory buffer-file-name))
          (watch-process-name "typst watch" ))
-    ;; TODO check process existence
     (unless (typst--process-exists-p watch-process-name)
       (start-process-shell-command watch-process-name typst-buffer-name
         (format (format (concat typst-executable-location " -w %s %s") file-name (concat (file-name-sans-extension file-name) ".pdf")))))
@@ -416,6 +423,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
 \\{typst-mode-map}"
   :syntax-table typst--markup-syntax-table
   (setq-local font-lock-multiline nil
+    tab-width typst-code-tab-width
     font-lock-defaults '(typst--markup-font-lock-keywords)))
 
 (define-derived-mode typst--code-mode typst--base-mode "Typst"
@@ -424,6 +432,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
 \\{typst-mode-map}"
   :syntax-table typst--code-syntax-table
   (setq-local font-lock-multiline nil
+    tab-width typst-code-tab-width
     font-lock-defaults '(typst--code-font-lock-keywords)))
 
 (define-derived-mode typst--math-mode typst--base-mode "Typst"
