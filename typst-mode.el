@@ -73,6 +73,9 @@
   :type 'integer
   :group 'typst-mode)
 
+(defcustom typst-indent-offset 4
+  "Default indentation offset for Typst mode.")
+
 (defcustom typst-buffer-name  "*typst-mode*"
   "The output buffer name for some compilation and preview command."
   :type 'string
@@ -322,6 +325,12 @@
   (let ((syntax-table (make-syntax-table)))
     (modify-syntax-entry ?\" "." syntax-table) ;; change the default syntax entry for double quote(string quote character '"')
     (modify-syntax-entry ?\n "> b" syntax-table)
+    (modify-syntax-entry ?\( "(" syntax-table)
+    (modify-syntax-entry ?\[ "(" syntax-table)
+    (modify-syntax-entry ?\{ "(" syntax-table)
+    (modify-syntax-entry ?\) ")" syntax-table)
+    (modify-syntax-entry ?\] ")" syntax-table)
+    (modify-syntax-entry ?\} ")" syntax-table)
     syntax-table)
   "Syntax table for `typst--markup-mode'.")
 
@@ -356,6 +365,43 @@
     map))
 
 ;;; Indentation =============================================
+(defun typst-indent-line ()
+  "Indent current line in Typst mode.
+(1)If current line is the beginning line of the buffer, then indentation -> 0;
+Else [ (2)If the beginning of the visual part of the current line is close delimiter character -> indentation decreases,
+      (3)Then check if the end of previous line contains an open delimiter character and there is no close delimiter after it -> indentation increases]"
+  (interactive)
+  ;; (message "function executing")
+  (save-excursion
+    (beginning-of-line)
+    (let ((not-indented t)
+           (cur-indent 0))
+      (if (bobp) ;; (1)
+        (progn (indent-line-to 0)
+          (setq not-indented nil)))
+      (when not-indented
+        ;; (3)
+        (save-excursion
+          (forward-line -1)
+          (setq cur-indent (current-indentation))
+          ;; also works for complex scenario like {{}} [] () { (
+          ;; func {(
+          ;;   code
+          ;; )}
+          ;; hello (a: {
+          ;;   value
+          ;; }, b: {
+          ;;   value
+          ;; })
+          (if (looking-at (rx (*? not-newline) (or (syntax open-parenthesis) "{") (* (not (syntax close-parenthesis))) eol))
+            (setq cur-indent (+ cur-indent typst-indent-offset))))
+        ;; (2)
+        (if (looking-at (rx (* blank) (syntax close-parenthesis)))
+          (setq cur-indent  (- cur-indent typst-indent-offset)))
+        ;; (message cur-indent)
+        (if (< cur-indent 0) ;; special cases
+          (setq cur-indent 0))
+        (indent-line-to cur-indent)))))
 
 ;;; Functions ===============================================
 (defun typst--process-exists-p (process-name)
@@ -376,7 +422,7 @@
   "Preview the compiled pdf file."
   (interactive)
   (start-process-shell-command "typst preview" typst-buffer-name
-		(format typst-pdf-preview-command (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".pdf"))))
+    (format typst-pdf-preview-command (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".pdf"))))
 
 (defun typst-watch ()
   "Watch(real time compile & preview) the corresponding pdf file."
@@ -415,6 +461,8 @@ concrete implementations.  Currently there are two concrete
 implementations: `typst-mode' and `typst-ts-mode'."
   ;; :syntax-table typst-syntax-table
   (setq-local tab-width 4
+    indent-line-function 'typst-indent-line
+    tab-width typst-code-tab-width
     font-lock-keywords-only t))
 
 (define-derived-mode typst--markup-mode typst--base-mode "Typst"
@@ -423,7 +471,6 @@ implementations: `typst-mode' and `typst-ts-mode'."
 \\{typst-mode-map}"
   :syntax-table typst--markup-syntax-table
   (setq-local font-lock-multiline nil
-    tab-width typst-code-tab-width
     font-lock-defaults '(typst--markup-font-lock-keywords)))
 
 (define-derived-mode typst--code-mode typst--base-mode "Typst"
@@ -432,7 +479,6 @@ implementations: `typst-mode' and `typst-ts-mode'."
 \\{typst-mode-map}"
   :syntax-table typst--code-syntax-table
   (setq-local font-lock-multiline nil
-    tab-width typst-code-tab-width
     font-lock-defaults '(typst--code-font-lock-keywords)))
 
 (define-derived-mode typst--math-mode typst--base-mode "Typst"
@@ -448,8 +494,8 @@ implementations: `typst-mode' and `typst-ts-mode'."
 
 (define-innermode typst--poly-code-innermode
   :mode 'typst--code-mode
-  :head-matcher "[^\\]{"
-  :tail-matcher "\\([^\\]}\\|^}\\)"
+  :head-matcher "\\(^{\\|[^\\]{\\)"
+  :tail-matcher "\\(^}\\|[^\\]}\\)"
   :head-mode 'host
   :tail-mode 'host)
 

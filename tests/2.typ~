@@ -1,0 +1,9 @@
+{
+let a = [from]
+let b = [*world*]
+[hello ]
+[
+	asdf
+]	
+a + [ the ] + b
+}

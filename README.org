@@ -44,15 +44,12 @@ faces and custom variables with prefix =typst= or =typst-mode=
 
 * To Dos
 1. [ ] fix math mode 
+2. [ ] code block highlight
+3. [ ] add treesit mode
 
 * Current Shortages
 For those stuffs cannot be done in short future.
 1. no syntax support for the context block =[ ]= which is located in the code block ={ }= \\
    this problem possibly can be solved with *nested polymode*. However, currently there is no official support for this function?
-
-* To Dos
-1. [ ] add treesit mode
-2. [ ] code block highlight
-
    
 *As an Emacs Lisp novice, this is my first package. I greatly value your assistance, including issues, pull requests, and more!*
