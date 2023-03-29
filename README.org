@@ -51,12 +51,12 @@ faces and custom variables with prefix =typst= or =typst-mode=
 For those stuffs cannot be done in short future.
 1. no syntax support for the context block =[ ]= which is located in the code block ={ }= \\
    this problem possibly can be solved with *nested polymode*. However, currently there is no official support for this function?
-2. indentation in code mode(contents between '{' and '}') may not works well, like this:
+2. indentation in code mode(contents between '{' and '}') may not works well, like this: \\
    (hitting `tab` to indent has problem, but it works well when directly call `typst-indent-line`)
    #+begin_src plain
    begin_code {
    [ // no indentation on this line.
-    [ // indentation works good
+    [ // indentation works well
     ]
    ]
    }
