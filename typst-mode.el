@@ -371,7 +371,7 @@
 Else [ (2)If the beginning of the visual part of the current line is close delimiter character -> indentation decreases,
       (3)Then check if the end of previous line contains an open delimiter character and there is no close delimiter after it -> indentation increases]"
   (interactive)
-  ;; (message "function executing")
+  ;; (message "%s" (current-indentation))
   (save-excursion
     (beginning-of-line)
     (let ((not-indented t)
