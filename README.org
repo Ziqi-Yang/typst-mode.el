@@ -61,6 +61,6 @@ For those stuffs cannot be done in short future.
    ]
    }
    #+end_src
-   The issue may caused by Polymode. I have created a issue here: [[https://github.com/polymode/polymode/issues/328][https://github.com/polymode/polymode/issues/328]]
+   The issue may caused by Polymode. I have created an issue here: [[https://github.com/polymode/polymode/issues/328][https://github.com/polymode/polymode/issues/328]]
    
 *This is my first Emacs lisp package and I greatly value your assistance, including issues, pull requests, and more!*
