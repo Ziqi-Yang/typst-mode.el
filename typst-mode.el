@@ -86,7 +86,13 @@
   :type 'string
   :group 'typst-mode)
 
-(defcustom typst-pdf-preview-command  "xdg-open %s"
+(defun typst-pdf-preview-command-by-system ()
+  (cond
+   ((eq system-type 'darwin) "open %s") ;; mac os
+   ((eq system-type 'gnu-linux) "xdg-open %s")
+   ((eq system-type 'windows-nt) "start %s")))
+
+(defcustom typst-pdf-preview-command (typst-pdf-preview-command-by-system)
   "Command to open/preview pdf. %s stand for the pdf file name."
   :type 'string
   :group 'typst-mode)
@@ -585,10 +591,10 @@ If BACKWARD is non-nil, search backward instead of forward."
 
 (define-innermode typst--poly-math-innermode
   :mode 'typst--math-mode
-  ;; header-matcher: the first '$' on the line. 
+  ;; header-matcher: the first '$' on the line.
   ;; :head-matcher (cons (rx bol (* (not "$")) (group-n 1 "$") (* not-newline)) 1)
   ;; :head-matcher "\\$"
-  ;; tail-matcher: the second '$' on the line 
+  ;; tail-matcher: the second '$' on the line
   ;; :head-matcher 'typst--poly-math-find-head
   :tail-matcher 'typst--poly-math-find-tail
   :head-mode 'host
