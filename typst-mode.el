@@ -103,6 +103,11 @@
   "Face for keyword."
   :group 'typst-mode-faces)
 
+(defface typst-mode-operator-face
+  '((t :inherit font-lock-builtin-face))
+  "Face for operator"
+  :group 'typst-mode-faces)
+
 (defface typst-mode-comment-face
   '((t :inherit font-lock-comment-face))
   "Face for comment."
@@ -123,6 +128,7 @@
   "Face for function name."
   :group 'typst-mode-faces)
 
+;; @ markup mode
 (defface typst-mode-markup-emphasis-face
   '((t :slant italic))
   "Face for emphasis text."
@@ -183,9 +189,13 @@
   "Face for slash."
   :group 'typst-mode-markup-faces)
 
+
 ;; @ corresponding variables ============
 (defvar typst-mode-keyword-face  'typst-mode-keyword-face
   "Face name to use for keywords.")
+
+(defvar typst-mode-operator-face 'typst-mode-operator-face
+  "Face name to use for operators.")
 
 (defvar typst-mode-comment-face  'typst-mode-comment-face
   "Face name to use for comment.")
@@ -242,11 +252,34 @@
   '("let" "set" "show" "if" "for" "while" "include" "import")
   "Keywords for typst mode.")
 
-;; @ markup
-(defconst typst--markup-keywords
-  (mapcar #'(lambda (keyword) (concat "#" keyword)) typst--base-keywords)
-  "Keywords for typst markup mode")
+(defconst typst--base-operators
+  ;; 'not in' is composed by 'in' and 'not'
+  ;; so as '==', '+=', '-=', '*=', '/='
+  '("+" "-" "*" "/" "!=" "<" "<=" ">" ">=" "in" "not" "and" "or" "="))
 
+;; symbol, string, function, arguments, module
+
+(defconst typst--base-constants
+  ;; integer, float, length, angle, ratio, fraction, color,
+  '("none" "auto" "false" "true" ""))
+
+;; @ code
+(defconst typst--code-keywords-regexp
+  ;; group 1
+  (eval `(rx (or blank bol) (group-n 1 (or ,@typst--base-keywords)) (or blank eol)))
+  "Keywords regexp for typst code mode")
+
+(defconst typst--code-operators-regexp
+  (eval `(rx blank (group-n 1 (or ,@typst--base-operators)) blank))
+  "Operators regexp for typst code mode")
+
+;; @ markup
+(defconst typst--markup-keywords-regexp
+  (let ((keywords (mapcar #'(lambda (keyword) (concat "#" keyword)) typst--base-keywords)))
+    (eval `(rx (or blank bol) (group-n 1 (or ,@keywords)) (or blank eol))))
+  "Keywords regexp for typst markup mode")
+
+;; TODO 
 (defconst typst--markup-else-keyword ;; else and else if
   (rx bol (*? not-newline) (syntax close-parenthesis)
     (* blank) (group-n 1 (or "else" (seq "else" (* blank) "if")))(* blank) (syntax open-parenthesis)))
@@ -301,7 +334,7 @@
 
 ;; @ Keywords table
 (defvar typst--markup-font-lock-keywords
-  `((,(regexp-opt typst--markup-keywords t) . typst-mode-keyword-face)
+  `((,typst--markup-keywords-regexp . typst-mode-keyword-face)
      (,typst--markup-else-keyword 1 typst-mode-keyword-face)
      ("#\\w+" . typst-mode-function-name-face)
      (,typst--markup-comment-regexp . typst-mode-comment-face)
@@ -326,11 +359,8 @@
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--code-font-lock-keywords
-  nil
-  ;; `((
-  ;;     ,(regexp-opt typst--global-keywords t) . typst-mode-keyword-face)
-  ;;    ("#\\w+" . typst-mode-function-name-face)
-  ;;    )
+  `((,typst--code-keywords-regexp 1 typst-mode-keyword-face)
+     (,typst--code-operators-regexp . typst-mode-operator-face))
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--math-font-lock-keywords
@@ -344,14 +374,14 @@
 (defvar typst--base-syntax-table
   (let ((syntax-table (make-syntax-table)))
     (modify-syntax-entry ?\" "." syntax-table) ;; change the default syntax entry for double quote(string quote character '"')
-    (modify-syntax-entry ?\n "> b" syntax-table)
-    (modify-syntax-entry ?\( "(" syntax-table)
-    (modify-syntax-entry ?\[ "(" syntax-table)
-    (modify-syntax-entry ?\{ "(" syntax-table)
-    (modify-syntax-entry ?\) ")" syntax-table)
-    (modify-syntax-entry ?\] ")" syntax-table)
-    (modify-syntax-entry ?\} ")" syntax-table)
-    syntax-table)
+  (modify-syntax-entry ?\n "> b" syntax-table)
+  (modify-syntax-entry ?\( "(" syntax-table)
+  (modify-syntax-entry ?\[ "(" syntax-table)
+  (modify-syntax-entry ?\{ "(" syntax-table)
+  (modify-syntax-entry ?\) ")" syntax-table)
+  (modify-syntax-entry ?\] ")" syntax-table)
+  (modify-syntax-entry ?\} ")" syntax-table)
+  syntax-table)
   "Syntax table for `typst--markup-mode'.")
 
 (defvar typst--markup-syntax-table
