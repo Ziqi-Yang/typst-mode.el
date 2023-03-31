@@ -271,19 +271,24 @@
   (rx "@" (1+ (not (any punct blank)))))
 
 (defconst typst--markup-heading-1-regexp
-  (rx bol (* blank) "=" (1+ blank) (seq (? (not blank)) (* not-newline))))
+  ;; don't include label
+  (rx bol (* blank) "=" (1+ blank) (seq (? (not blank)) (* (not (or "\n" "<"))))))
 
 (defconst typst--markup-heading-2-regexp
-  (rx bol (* blank) "==" (1+ blank) (seq (? (not blank)) (* not-newline))))
+  ;; don't include label
+  (rx bol (* blank) "==" (1+ blank) (seq (? (not blank)) (* (not (or "\n" "<"))))))
 
 (defconst typst--markup-heading-3-regexp
-  (rx bol (* blank) "===" (1+ blank) (seq (? (not blank)) (* not-newline))))
+  ;; don't include label
+  (rx bol (* blank) "===" (1+ blank) (seq (? (not blank)) (* (not (or "\n" "<"))))))
 
 (defconst typst--markup-heading-4-regexp
-  (rx bol (* blank) "====" (1+ blank) (seq (? (not blank)) (* not-newline))))
+  ;; don't include label
+  (rx bol (* blank) "====" (1+ blank) (seq (? (not blank)) (* (not (or "\n" "<"))))))
 
 (defconst typst--markup-heading-5-regexp
-  (rx bol (* blank) "=====" (1+ blank) (seq (? (not blank)) (* not-newline))))
+  ;; don't include label
+  (rx bol (* blank) "=====" (1+ blank) (seq (? (not blank)) (* (not (or "\n" "<"))))))
 
 (defconst typst--markup-term-list-regexp
   (rx bol (* blank) "/" (1+ blank) (group-n 1 (1+ (not ":") )) ":" (* not-newline)))
