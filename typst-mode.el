@@ -545,22 +545,19 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (defconst typst--poly-code-head-multiple-line-keywords
   '("let" "set" "show" "if" "for" "while"))
 
-(defconst typst--poly-code-head-single-line-keywords
-  '("include" "import"))
-
 ;; Parentheses
 (define-innermode typst--poly-code-parentheses-innermode
   ;; code mode inside { }
   :mode 'typst--code-mode
-  :head-matcher (eval `(rx bol (* blank) "#" (or ,@typst--poly-code-head-multiple-line-keywords) (*? (not (or "\n" "\\"))) "(" (*? (not (or "{" "(" "[" ")"))) eol))
+  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords)) (*? (not (or "\n" "\\"))) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
   :tail-matcher (rx (* blank) ")" (* blank) eol)
   :head-mode 'host
   :tail-mode 'host)
 
 (define-innermode typst--poly-code-curly-brackets-innermode
-  ;; code mode inside { }
+  ;; code mode inside ( )
   :mode 'typst--code-mode
-  :head-matcher (eval `(rx bol (* blank) "#" (or ,@typst--poly-code-head-multiple-line-keywords) (*? (not (or "\n" "\\"))) "{" (*? (not (or "{" "(" "[" "}"))) eol))
+  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords)) (*? (not (or "\n" "\\"))) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
   :tail-matcher (rx (* blank) "}" (* blank) eol)
   :head-mode 'host
   :tail-mode 'host)
