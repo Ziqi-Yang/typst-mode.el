@@ -237,6 +237,17 @@
 
 ;;; Regexps & Keywords =======================================
 
+(defconst typst--base-if-statement-regexp ;; don't
+  (rx "if" (*? (not (syntax open-parenthesis))) (syntax open-parenthesis) 
+    (*? anychar) (syntax close-parenthesis)) 
+  ;; (rx "if" (*? not-newline) "{" (* not-newline)
+
+  
+  ;; (*? anychar) (syntax close-parenthesis) (* (or blank "\n"))
+  ;; (?  "else" )
+  ;; )
+  )
+
 (defconst typst--markup-comment-regexp ;; don't interfer URLs
   (rx (or (and (or bol (1+ whitespace)) "//" (*? anything) eol)
         (and (or bol (1+ whitespace)) "/*" (*? anything) "*/"))))
@@ -291,7 +302,7 @@
 (defvar typst--markup-font-lock-keywords
   `((,(regexp-opt typst--markup-keywords t) . typst-mode-keyword-face)
      ("#\\w+" . typst-mode-function-name-face)
-     (,typst--markup-comment-regexp . font-lock-comment-face)
+     (,typst--markup-comment-regexp . typst-mode-comment-face)
      ("\\*\\w+\\*" . typst-mode-markup-strong-face) ;; strong
      (,typst--markup-emphasis-regexp . typst-mode-markup-emphasis-face) ;; emphasized
      (,typst--markup-raw-text-regexp . typst-mode-markup-raw-text-face) ;; raw text
@@ -304,10 +315,11 @@
      (,typst--markup-heading-3-regexp . typst-mode-markup-heading-3-face) ;; heading 3
      (,typst--markup-heading-4-regexp . typst-mode-markup-heading-4-face) ;; heading 4
      (,typst--markup-heading-5-regexp . typst-mode-markup-heading-5-face) ;; heading 5
-     ;; do nothing to bullet list
-     ;; do nothing to Numbered list
+     ;; do nothing with bullet list
+     ;; do nothing with Numbered list
      (,typst--markup-term-list-regexp 1 typst-mode-markup-term-list-face) ;; term list
      (,typst--markup-slash-regexp . typst-mode-markup-slash-face) ;; slash(line break and escape character)
+     ;; (,typst--base-if-statement-regexp . typst-mode-markup-underline-face) ;; slash(line break and escape character)
      )
   "Minimal highlighting expressions for typst mode")
 
@@ -459,7 +471,7 @@ Else [ (2)If the beginning of the visual part of the current line is close delim
       (typst-watch))))
 
 ;;; Mode definition =========================================
-(define-derived-mode typst--base-mode prog-mode "Typst"
+(define-derived-mode typst--base-mode text-mode "Typst"
   "Generic major mode for editing Typst files.
 
 This is a generic major mode intended to be inherited by
@@ -569,7 +581,7 @@ If BACKWARD is non-nil, search backward instead of forward."
               1)
             ))))))
 ;; (typst--poly-math-find-head 1)
-;; (typst--poly-math-find-tail 1)
+;; (typst--poly-math-find-tail)
 ;; $ $ $ $ $ $ $
 ;; (typst--poly-math-find-head -1)
 
@@ -582,7 +594,8 @@ If BACKWARD is non-nil, search backward instead of forward."
           (put-text-property the_point (1+ the_point) 'math-head t)
           (cons the_point (1+ the_point)))))))
 
-(defun typst--poly-math-find-tail (_args)
+(defun typst--poly-math-find-tail (&rest _args)
+  (message "call find tail")
   (let ((the_point (typst--find-unmarked-dollar 'math-tail)))
     (if the_point
       (progn
@@ -591,12 +604,11 @@ If BACKWARD is non-nil, search backward instead of forward."
 
 (define-innermode typst--poly-math-innermode
   :mode 'typst--math-mode
-  ;; header-matcher: the first '$' on the line.
   ;; :head-matcher (cons (rx bol (* (not "$")) (group-n 1 "$") (* not-newline)) 1)
   ;; :head-matcher "\\$"
-  ;; tail-matcher: the second '$' on the line
-  ;; :head-matcher 'typst--poly-math-find-head
-  :tail-matcher 'typst--poly-math-find-tail
+  ;; :tail-matcher "\\$"
+  :head-matcher #'typst--poly-math-find-head
+  :tail-matcher #'typst--poly-math-find-tail
   :head-mode 'host
   :tail-mode 'host)
 

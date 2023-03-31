@@ -22,3 +22,5 @@ a + [ the ] +
 	]	
 ]
 }
+
+$ asdfasf $ asdfasdf $   asdfasdf      $
