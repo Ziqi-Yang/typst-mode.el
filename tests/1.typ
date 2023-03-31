@@ -63,17 +63,18 @@ line comment */
   + Meta
   
 / Ligature: A merged glyph.
-/ 你好.abc:asdfasfs asdf
+/ 你好.hello: Used as a greeting or to begin a phone conversation.
 
 $ 1 + 1 $
 
-if x == 1 {..} else {..}
+#if x == 1 {..} else if {..}
+
 #if x == 1 {
 
 } else {
 
-
 }
+
 \ \aha
 
 = Introduction
@@ -81,7 +82,9 @@ if x == 1 {..} else {..}
 == In this paper
 === Contributions
 
-\{ This is not a code block \}
+#let \{
+	This is not a code block
+\}
 
 #let name = "Typst"
 This is #name's documentation.
@@ -93,4 +96,3 @@ Sum is #add(2, 3).
 #emph[Hello] \
 #emoji.face \
 #"hello".len()
-

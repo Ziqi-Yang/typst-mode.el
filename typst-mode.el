@@ -237,16 +237,19 @@
 
 ;;; Regexps & Keywords =======================================
 
-(defconst typst--base-if-statement-regexp ;; don't
-  (rx "if" (*? (not (syntax open-parenthesis))) (syntax open-parenthesis) 
-    (*? anychar) (syntax close-parenthesis)) 
-  ;; (rx "if" (*? not-newline) "{" (* not-newline)
+;; @ base
+(defconst typst--base-keywords
+  '("let" "set" "show" "if" "for" "while" "include" "import")
+  "Keywords for typst mode.")
 
-  
-  ;; (*? anychar) (syntax close-parenthesis) (* (or blank "\n"))
-  ;; (?  "else" )
-  ;; )
-  )
+;; @ markup
+(defconst typst--markup-keywords
+  (mapcar #'(lambda (keyword) (concat "#" keyword)) typst--base-keywords)
+  "Keywords for typst markup mode")
+
+(defconst typst--markup-else-keyword ;; else and else if
+  (rx bol (*? not-newline) (syntax close-parenthesis)
+    (* blank) (group-n 1 (or "else" (seq "else" (* blank) "if")))(* blank) (syntax open-parenthesis)))
 
 (defconst typst--markup-comment-regexp ;; don't interfer URLs
   (rx (or (and (or bol (1+ whitespace)) "//" (*? anything) eol)
@@ -291,16 +294,10 @@
 (defconst typst--markup-slash-regexp ;; for line break and escape character
   (rx "\\" (? (not blank))))
 
-(defvar typst--base-keywords
-  '("let" "set" "show" "if" "for" "while" "include" "import")
-  "Keywords for typst mode.")
-
-(defvar typst--markup-keywords
-  (mapcar #'(lambda (keyword) (concat "#" keyword)) typst--base-keywords)
-  "Keywords for typst markup mode")
-
+;; @ Keywords table
 (defvar typst--markup-font-lock-keywords
   `((,(regexp-opt typst--markup-keywords t) . typst-mode-keyword-face)
+     (,typst--markup-else-keyword 1 typst-mode-keyword-face)
      ("#\\w+" . typst-mode-function-name-face)
      (,typst--markup-comment-regexp . typst-mode-comment-face)
      ("\\*\\w+\\*" . typst-mode-markup-strong-face) ;; strong
@@ -510,10 +507,26 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (define-hostmode typst--poly-hostmode
   :mode 'typst--markup-mode)
 
-(define-innermode typst--poly-code-innermode
+(defconst typst--poly-code-head-multiple-line-keywords
+  '("let" "set" "show" "if" "for" "while"))
+
+(defconst typst--poly-code-head-single-line-keywords
+  '("include" "import"))
+
+;; Parentheses
+(define-innermode typst--poly-code-parentheses-innermode
+  ;; code mode inside { }
   :mode 'typst--code-mode
-  :head-matcher "\\(^{\\|[^\\]{\\)"
-  :tail-matcher "\\(^}\\|[^\\]}\\)"
+  :head-matcher (eval `(rx bol (* blank) "#" (or ,@typst--poly-code-head-multiple-line-keywords) (*? (not (or "\n" "\\"))) "(" (*? (not (or "{" "(" "[" ")"))) eol))
+  :tail-matcher (rx (* blank) ")" (* blank) eol)
+  :head-mode 'host
+  :tail-mode 'host)
+
+(define-innermode typst--poly-code-curly-brackets-innermode
+  ;; code mode inside { }
+  :mode 'typst--code-mode
+  :head-matcher (eval `(rx bol (* blank) "#" (or ,@typst--poly-code-head-multiple-line-keywords) (*? (not (or "\n" "\\"))) "{" (*? (not (or "{" "(" "[" "}"))) eol))
+  :tail-matcher (rx (* blank) "}" (* blank) eol)
   :head-mode 'host
   :tail-mode 'host)
 
@@ -615,7 +628,8 @@ If BACKWARD is non-nil, search backward instead of forward."
 ;; ;;;###autoload
 (define-polymode typst-mode
   :hostmode 'typst--poly-hostmode
-  :innermodes '(typst--poly-code-innermode
+  :innermodes '(typst--poly-code-curly-brackets-innermode
+                 typst--poly-code-parentheses-innermode
                  ;; typst--poly-math-innermode ;; FIXME
                  )
   :keymap typst-mode-map
