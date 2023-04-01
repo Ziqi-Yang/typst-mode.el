@@ -318,8 +318,8 @@
     (eval `(rx (or blank bol) (group-n 1 (or ,@keywords)) (or blank eol))))
   "Keywords regexp for typst markup mode")
 
-;; TODO 
-(defconst typst--markup-else-keyword ;; else and else if
+;; NOTE: this regexp is needed since clause like `#if x == 1 [` won't enter into code mode
+(defconst typst--markup-else-keyword-regexp ;; else and else if
   (rx bol (*? not-newline) (syntax close-parenthesis)
     (* blank) (group-n 1 (or "else" (seq "else" (* blank) "if")))(* blank) (syntax open-parenthesis)))
 
@@ -374,7 +374,7 @@
 ;; @ Keywords table
 (defvar typst--markup-font-lock-keywords
   `((,typst--markup-keywords-regexp . typst-mode-keyword-face)
-     (,typst--markup-else-keyword 1 typst-mode-keyword-face)
+     (,typst--markup-else-keyword-regexp 1 typst-mode-keyword-face)
      ("#\\w+" . typst-mode-function-name-face)
      (,typst--markup-comment-regexp . typst-mode-comment-face)
      ("\\*\\w+\\*" . typst-mode-markup-strong-face) ;; strong
@@ -584,22 +584,33 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (defconst typst--poly-code-head-multiple-line-keywords
   '("let" "set" "show" "if" "for" "while"))
 
-;; Parentheses
-(define-innermode typst--poly-code-parentheses-innermode
-  ;; code mode inside ( ) 
+(define-innermode typst--poly-code-oneline-innermode
   :mode 'typst--code-mode
-  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not (or "\n" "\\"))) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
+  ;; NOTE: here one line code mode must start with "#" in the line beginning to prevent occurrence in multi-line code block (and in multi-line code block, thanks to indentation, there must be blank before "#")
+  ;; only #keywords will be highlighted, which means #module.key will not be highlighted. That's because #module.key often follows with markup texts. And it is assumed that it is a good style to make keywords occupy one or more whole lines
+  :head-matcher `(,(eval `(rx bol (group-n 1 "#" (or ,@typst--base-keywords)) (or (seq (*? not-newline) (or "}" ")" "]") (*? (not (or "(" "{" "[" "]" "}" ")")))) (*? (not (or "(" "{" "[" "]" "}" ")")))) (* blank) eol)) . 1)
+  :tail-matcher (rx eol)
+  :head-mode 'host
+  :tail-mode 'host)
+
+;; Parentheses
+;; NOTE: user shouldn't escapes a "{" "(" in the end of the line which begins with "#"
+(define-innermode typst--poly-code-block-curly-brackets-innermode
+  ;; code mode inside multi-line "{ }" block
+  :mode 'typst--code-mode
+  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not "\n" )) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
+  :tail-matcher `(,(rx (* blank) (group-n 1 "}" ) (* blank) eol) . 1)
+  :head-mode 'host
+  :tail-mode 'host)
+
+(define-innermode typst--poly-code-block-parentheses-innermode
+  ;; code mode inside multi-line "( )" block
+  :mode 'typst--code-mode
+  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not "\n" )) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
   :tail-matcher `(,(rx (* blank) (group-n 1 ")") (* blank) eol) . 1)
   :head-mode 'host
   :tail-mode 'host)
 
-(define-innermode typst--poly-code-curly-brackets-innermode
-  ;; code mode inside { }
-  :mode 'typst--code-mode
-  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not (or "\n" "\\"))) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
-  :tail-matcher `(,(rx (* blank) (group-n 1 "}") (* blank) eol) . 1)
-  :head-mode 'host
-  :tail-mode 'host)
 
 (defun typst--find-unmarked-dollar (type &optional backward)
   "Search for the next unmarked `$` character, where the `math-head` and `math-end` text properties are not set.
@@ -699,8 +710,9 @@ If BACKWARD is non-nil, search backward instead of forward."
 ;; ;;;###autoload
 (define-polymode typst-mode
   :hostmode 'typst--poly-hostmode
-  :innermodes '(typst--poly-code-curly-brackets-innermode
-                 typst--poly-code-parentheses-innermode
+  :innermodes '(typst--poly-code-block-parentheses-innermode
+                 typst--poly-code-block-curly-brackets-innermode
+                 typst--poly-code-oneline-innermode
                  ;; typst--poly-math-innermode ;; FIXME
                  )
   :keymap typst-mode-map

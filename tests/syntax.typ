@@ -24,14 +24,23 @@ none, auto, false, true, 1, 1.1, 1e1
 $ 1 + 1 $
 #(
 
-             )	
+)
+
 #if x == 1 {} else if {}
+
+#include "bar.typ"
 
 #if x == 1 {
 
 } else {
 
 }
+
+#if x == 1 [
+	
+] else [
+	
+]
 
 \{ This is not
 a code block \}
