@@ -1,12 +1,12 @@
 load_polymode := -L ~/.emacs.d/.local/straight/repos/polymode
 load_typst_mode := -l ~/.emacs.d/modules/languages/typst-mode/typst-mode.el
-test_file_1 := ~/.emacs.d/modules/languages/typst-mode/tests/1.typ
-test_file_2 := ~/.emacs.d/modules/languages/typst-mode/tests/2.typ
+general := ~/.emacs.d/modules/languages/typst-mode/tests/general.typ
+syntax := ~/.emacs.d/modules/languages/typst-mode/tests/syntax.typ
 debug := --debug-init 
 
 .PHONY: test_1
-test_1:
-	emacs -Q $(debug) $(load_polymode) $(load_typst_mode) $(test_file_1)
+general:
+	emacs -Q $(debug) $(load_polymode) $(load_typst_mode) $(general)
 
-test_2:
-	emacs -Q $(debug) $(load_polymode) $(load_typst_mode) $(test_file_2)
+syntax:
+	emacs -Q $(debug) $(load_polymode) $(load_typst_mode) $(syntax)

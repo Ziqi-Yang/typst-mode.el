@@ -202,7 +202,7 @@
 (defvar typst-mode-operator-face 'typst-mode-operator-face
   "Face name to use for operators.")
 
-(defvar typst-mode-operator-face 'typst-mode-type-face
+(defvar typst-mode-type-face 'typst-mode-type-face
   "Face name to use for types.")
 
 (defvar typst-mode-comment-face  'typst-mode-comment-face
@@ -300,7 +300,17 @@
                  (seq (1+ (or digit "e" ".")) (or "pt" "mm" "cm" "in" "em")) ;; length
                  (seq (1+ (or digit "e" ".")) (or "deg" "rad")) ;; angle
                  (seq (1+ (or digit "e" ".")) "%") ;; ratio
-                 ;; TODO 
+                 ;; pass relative length
+                 (seq (1+ (or digit "e" ".")) "fr") ;; fraction
+                 ;; pass color TODO 
+                 ;; pass symbol TODO
+                 ;; pass string (already in syntax table)
+                 ;; pass content TODO
+                 ;; pass array
+                 ;; pass dictionary
+                 ;; pass function/method TODO 
+                 ;; pass arguments 
+                 ;; pass module TODO
                  ))
              (or ,@puncts blank eol)))))
 
@@ -392,7 +402,7 @@
 (defvar typst--code-font-lock-keywords
   `((,typst--code-keywords-regexp 1 typst-mode-keyword-face)
      (,typst--code-operators-regexp . typst-mode-operator-face)
-     (,typst--code-type-regexp 1 typst-mode-keyword-face)) ;; TODO change face
+     (,typst--code-type-regexp 1 typst-mode-type-face)) ;; TODO change face
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--math-font-lock-keywords
@@ -579,7 +589,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
 
 ;; Parentheses
 (define-innermode typst--poly-code-parentheses-innermode
-  ;; code mode inside { }
+  ;; code mode inside ( ) 
   :mode 'typst--code-mode
   :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords)) (*? (not (or "\n" "\\"))) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
   :tail-matcher (rx (* blank) ")" (* blank) eol)
@@ -587,9 +597,9 @@ implementations: `typst-mode' and `typst-ts-mode'."
   :tail-mode 'host)
 
 (define-innermode typst--poly-code-curly-brackets-innermode
-  ;; code mode inside ( )
+  ;; code mode inside { }
   :mode 'typst--code-mode
-  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords)) (*? (not (or "\n" "\\"))) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
+  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not (or "\n" "\\"))) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
   :tail-matcher (rx (* blank) "}" (* blank) eol)
   :head-mode 'host
   :tail-mode 'host)

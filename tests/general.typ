@@ -7,11 +7,6 @@
     set page(numbering: "1", number-align: center)
     set text(font: "Linux Libertine", lang: "en")
     set heading(numbering: "1.1")
-	// type test
-	none, auto, false, true, 1, 1.1, 1e1
-	1pt, 1mm, 1cm, 1.1in, 1em
-	1e32deg, 1.32rad
-    100.0%
 	
 	// Title row.
 	align(center)[
@@ -59,46 +54,3 @@
 /* multiple
 line comment */
 
-= styles<label>
-*strong* _emphasized_ `hello` https://typst.app/ @label
-
-- *Content*
-  - Text
-  - Math
-  + Visualize
-  + Meta
-  
-/ Ligature: A merged glyph.
-/ 你好.hello: Used as a greeting or to begin a phone conversation.
-
-$ 1 + 1 $
-
-#if x == 1 {..} else if {..}
-
-#if x == 1 {
-
-} else {
-
-}
-
-\ \aha
-
-= Introduction
-#lorem(2)
-== In this paper
-=== Contributions
-
-#let \{
-	This is not a code block
-\}
-
-#let name = "Typst"
-This is #name's documentation.
-It explains #name.
-
-#let add(x, y) = x + y
-Sum is #add(2, 3).
-
-#emph[Hello] \
-#emoji.face \
-#"hello".len()
