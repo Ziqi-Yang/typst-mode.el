@@ -82,17 +82,15 @@
   :group 'typst-mode)
 
 (defcustom typst-executable-location  "typst"
-  "The location for typst executable. If it is in your PATH, use just the name of the executable."
+  "The location for typst executable. If it is in your PATH, just use the name of the executable."
   :type 'string
   :group 'typst-mode)
 
-(defun typst-pdf-preview-command-by-system ()
+(defcustom typst-pdf-preview-command
   (cond
-   ((eq system-type 'darwin) "open %s") ;; mac os
-   ((eq system-type 'gnu-linux) "xdg-open %s")
-   ((eq system-type 'windows-nt) "start %s")))
-
-(defcustom typst-pdf-preview-command (typst-pdf-preview-command-by-system)
+    ((eq system-type 'darwin) "open %s") ;; mac os
+    ((eq system-type 'gnu/linux) "xdg-open %s")
+    ((eq system-type 'windows-nt) "start %s"))
   "Command to open/preview pdf. %s stand for the pdf file name."
   :type 'string
   :group 'typst-mode)
