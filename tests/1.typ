@@ -7,6 +7,11 @@
     set page(numbering: "1", number-align: center)
     set text(font: "Linux Libertine", lang: "en")
     set heading(numbering: "1.1")
+	// type test
+	none, auto, false, true, 1, 1.1, 1e1
+	1pt, 1mm, 1cm, 1.1in, 1em
+	1e32deg, 1.32rad
+    100.0%
 	
 	// Title row.
 	align(center)[

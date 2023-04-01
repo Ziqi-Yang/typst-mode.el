@@ -108,6 +108,11 @@
   "Face for operator"
   :group 'typst-mode-faces)
 
+(defface typst-mode-type-face
+  '((t :inherit font-lock-constant-face))
+  "Face for operator"
+  :group 'typst-mode-faces)
+
 (defface typst-mode-comment-face
   '((t :inherit font-lock-comment-face))
   "Face for comment."
@@ -197,6 +202,9 @@
 (defvar typst-mode-operator-face 'typst-mode-operator-face
   "Face name to use for operators.")
 
+(defvar typst-mode-operator-face 'typst-mode-type-face
+  "Face name to use for types.")
+
 (defvar typst-mode-comment-face  'typst-mode-comment-face
   "Face name to use for comment.")
 
@@ -206,6 +214,7 @@
 (defvar typst-mode-field-name-face  'typst-mode-field-name-face
   "Face name to use for field names.")
 
+;; @ markup
 (defvar typst-mode-method-name-face  'typst-mode-method-name-face
   "Face name to use for method names.")
 
@@ -253,15 +262,15 @@
   "Keywords for typst mode.")
 
 (defconst typst--base-operators
-  ;; 'not in' is composed by 'in' and 'not'
-  ;; so as '==', '+=', '-=', '*=', '/='
-  '("+" "-" "*" "/" "!=" "<" "<=" ">" ">=" "in" "not" "and" "or" "="))
+  ;; 'not in' can be composed by "in" and "not"
+  ;; so as "==",  "<=", ">=", "+=", "-=", "*=", "/="
+  '("+" "-" "*" "/" "<"  ">" "in" "not" "and" "or" "=" "!="))
 
 ;; symbol, string, function, arguments, module
 
-(defconst typst--base-constants
+(defconst typst--base-types
   ;; integer, float, length, angle, ratio, fraction, color,
-  '("none" "auto" "false" "true" ""))
+  '("none" "auto" "false" "true"))
 
 ;; @ code
 (defconst typst--code-keywords-regexp
@@ -272,6 +281,28 @@
 (defconst typst--code-operators-regexp
   (eval `(rx blank (group-n 1 (or ,@typst--base-operators)) blank))
   "Operators regexp for typst code mode")
+
+(defconst typst--code-type-regexp
+  ;; TODO not graceful
+  ;; exclude `.` `%` in rx's character set `punct`
+  (let ((puncts '("+" "-" "*" "/" "<"  ">" "=" ;; operator
+                   "`" "~" "!" "@" "#" "$" "^" "&" "-" "_" "|" "?"
+                   "{" "}" "(" ")" "[" "]"
+                   "," "\\")))
+    (eval `(rx (or ,@puncts blank bol)
+             (group-n 1
+               (or
+                 "none"                  ;; none
+                 "auto"                  ;; auto
+                 "false" "true"          ;; boolean 
+                 (1+ digit)              ;; integer
+                 (1+ (or digit "e" ".")) ;; float
+                 (seq (1+ (or digit "e" ".")) (or "pt" "mm" "cm" "in" "em")) ;; length
+                 (seq (1+ (or digit "e" ".")) (or "deg" "rad")) ;; angle
+                 (seq (1+ (or digit "e" ".")) "%") ;; ratio
+                 ;; TODO 
+                 ))
+             (or ,@puncts blank eol)))))
 
 ;; @ markup
 (defconst typst--markup-keywords-regexp
@@ -360,7 +391,8 @@
 
 (defvar typst--code-font-lock-keywords
   `((,typst--code-keywords-regexp 1 typst-mode-keyword-face)
-     (,typst--code-operators-regexp . typst-mode-operator-face))
+     (,typst--code-operators-regexp . typst-mode-operator-face)
+     (,typst--code-type-regexp 1 typst-mode-keyword-face)) ;; TODO change face
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--math-font-lock-keywords
