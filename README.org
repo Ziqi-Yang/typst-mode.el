@@ -2,14 +2,31 @@
 
 An Emacs major mode for [[https://typst.app/][typst]], a markup-based typesetting system.
 
-Since the language style of =typst= is somewhat complicated to parse(at least for me), currently this package  only provides limited syntax highlighting feature :( Maybe complicated cases should be implemented into lsp server?
-
 * Requirements
-[[https://github.com/typst/typst][typst]]
+external executable: [[https://github.com/typst/typst][typst]]
 
-[[https://github.com/polymode/polymode][polymode]]
+Emacs package: [[https://github.com/polymode/polymode][polymode]] (if you use =straight=, it will automatically download this requirement for you)
 
-minium Emacs version hasn't been tested
+Minimum Emacs version hasn't been tested
+
+* Installation
+** Use-package and straight
+#+begin_src emacs-lisp
+(use-package typst-mode
+  :straight (:type git :host github :repo "Ziqi-Yang/typst-mode.el"))
+#+end_src
+
+** Manually
+#+begin_src emacs-lisp
+;; push typst-mode directory to the load-path like this
+(push (expand-file-name "modules/languages/typst-mode" user-emacs-directory) load-path)
+;; load tyspt-mode
+(require 'typst-mode)
+#+end_src
+
+** Other Methods
+For instance, Emacs' builtin =pakcage.el=. 
+If you use another method to load =typst-mode=, please consider creating a pull-request by simply clicking on the =edit= icon located in the top-right region of this README file.
 
 * Current Features
 ** Functions
@@ -44,8 +61,8 @@ faces and custom variables with prefix =typst= or =typst-mode=
 
 * To Dos
 1. [ ] fix math mode 
-2. [ ] code block highlight
-3. [ ] add treesit mode
+2. [ ] add treesit mode
+3. [ ] show compile errors at real time when in Typst =watch= mode
 
 * Current Shortages
 For those stuffs cannot be done in short future.

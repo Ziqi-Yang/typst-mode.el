@@ -393,7 +393,6 @@
      ;; do nothing with Numbered list
      (,typst--markup-term-list-regexp 1 typst-mode-markup-term-list-face) ;; term list
      (,typst--markup-slash-regexp . typst-mode-markup-slash-face) ;; slash(line break and escape character)
-     ;; (,typst--base-if-statement-regexp . typst-mode-markup-underline-face) ;; slash(line break and escape character)
      )
   "Minimal highlighting expressions for typst mode")
 
