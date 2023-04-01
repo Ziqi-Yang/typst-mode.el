@@ -588,8 +588,8 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (define-innermode typst--poly-code-parentheses-innermode
   ;; code mode inside ( ) 
   :mode 'typst--code-mode
-  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords)) (*? (not (or "\n" "\\"))) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
-  :tail-matcher (rx (* blank) ")" (* blank) eol)
+  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not (or "\n" "\\"))) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
+  :tail-matcher `(,(rx (* blank) (group-n 1 ")") (* blank) eol) . 1)
   :head-mode 'host
   :tail-mode 'host)
 
@@ -597,7 +597,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
   ;; code mode inside { }
   :mode 'typst--code-mode
   :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not (or "\n" "\\"))) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
-  :tail-matcher (rx (* blank) "}" (* blank) eol)
+  :tail-matcher `(,(rx (* blank) (group-n 1 "}") (* blank) eol) . 1)
   :head-mode 'host
   :tail-mode 'host)
 
