@@ -261,19 +261,13 @@
 
 (defconst typst--base-operators
   ;; 'not in' can be composed by "in" and "not"
-  ;; so as "==",  "<=", ">=", "+=", "-=", "*=", "/="
+  ;; same as "==",  "<=", ">=", "+=", "-=", "*=", "/="
   '("+" "-" "*" "/" "<"  ">" "in" "not" "and" "or" "=" "!="))
-
-;; symbol, string, function, arguments, module
-
-(defconst typst--base-types
-  ;; integer, float, length, angle, ratio, fraction, color,
-  '("none" "auto" "false" "true"))
 
 ;; @ code
 (defconst typst--code-keywords-regexp
   ;; group 1
-  (eval `(rx (or blank bol) (group-n 1 (or ,@typst--base-keywords)) (or blank eol)))
+  (eval `(rx (or blank bol "{") (group-n 1 (or ,@typst--base-keywords "else")) (or blank eol)))
   "Keywords regexp for typst code mode")
 
 (defconst typst--code-operators-regexp
@@ -586,9 +580,9 @@ implementations: `typst-mode' and `typst-ts-mode'."
 
 (define-innermode typst--poly-code-oneline-innermode
   :mode 'typst--code-mode
-  ;; NOTE: here one line code mode must start with "#" in the line beginning to prevent occurrence in multi-line code block (and in multi-line code block, thanks to indentation, there must be blank before "#")
-  ;; only #keywords will be highlighted, which means #module.key will not be highlighted. That's because #module.key often follows with markup texts. And it is assumed that it is a good style to make keywords occupy one or more whole lines
-  :head-matcher `(,(eval `(rx bol (group-n 1 "#" (or ,@typst--base-keywords)) (or (seq (*? not-newline) (or "}" ")" "]") (*? (not (or "(" "{" "[" "]" "}" ")")))) (*? (not (or "(" "{" "[" "]" "}" ")")))) (* blank) eol)) . 1)
+  ;; NOTE: here one line code mode must start with "#" in the line beginning to prevent occurrence in multi-line code block (for instance `[ #hello ]`. In multi-line code block, thanks to indentation, there must be blank before "#")
+  ;; only the line begins with #keywords will enter code mode, which means patterns like #module.key won't make sense. That's because #module.key often follows with markup texts. And it is assumed that it is a good style to make keywords occupy one or more whole lines
+  :head-matcher `(,(eval `(rx bol (group-n 1 "#") (or ,@typst--base-keywords) (or (seq (*? not-newline) (or "}" ")" "]") (*? (not (or "(" "{" "[" "]" "}" ")")))) (*? (not (or "(" "{" "[" "]" "}" ")")))) (* blank) eol)) . 1)
   :tail-matcher (rx eol)
   :head-mode 'host
   :tail-mode 'host)
@@ -598,7 +592,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (define-innermode typst--poly-code-block-curly-brackets-innermode
   ;; code mode inside multi-line "{ }" block
   :mode 'typst--code-mode
-  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not "\n" )) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
+  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#") (or ,@typst--poly-code-head-multiple-line-keywords "") (*? (not "\n" )) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
   :tail-matcher `(,(rx (* blank) (group-n 1 "}" ) (* blank) eol) . 1)
   :head-mode 'host
   :tail-mode 'host)

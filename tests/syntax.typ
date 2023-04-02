@@ -26,7 +26,7 @@ $ 1 + 1 $
 
 )
 
-#if x == 1 {} else if {}
+#if x == 1 {import } else if {}
 
 #include "bar.typ"
 
