@@ -109,163 +109,139 @@
 		  (setq punct (remove chr punct)))
 	  punct))
 
-;;; Faces ===================================================
+;;; Faces & Corresponding variables ===================================================
 (defface typst-mode-keyword-face
   '((t :inherit font-lock-keyword-face))
   "Face for keyword."
   :group 'typst-mode-faces)
+(defvar typst-mode-keyword-face  'typst-mode-keyword-face
+  "Face name to use for Keywords.")
 
 (defface typst-mode-operator-face
   '((t :inherit font-lock-builtin-face))
   "Face for operator"
   :group 'typst-mode-faces)
+(defvar typst-mode-operator-face 'typst-mode-operator-face
+  "Face name to use for Operators.")
 
 (defface typst-mode-constant-face
   '((t :inherit font-lock-constant-face))
   "Face for operator"
   :group 'typst-mode-faces)
+(defvar typst-mode-constant-face 'typst-mode-constant-face
+  "Face name to use for Types.")
 
 (defface typst-mode-symbol-face
   '((t :inherit font-lock-variable-name-face))
   "Face for symbol."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-symbol-face 'typst-mode-symbol-face
+  "Face name to use for Symbols." )
 
 
 (defface typst-mode-comment-face
   '((t :inherit font-lock-comment-face))
   "Face for comment."
   :group 'typst-mode-faces)
+(defvar typst-mode-comment-face  'typst-mode-comment-face
+  "Face name to use for comment.")
 
 (defface typst-mode-function-method-name-face
   '((t :inherit font-lock-function-name-face))
   "Face for function name."
   :group 'typst-mode-faces)
+(defvar typst-mode-function-method-name-face  'typst-mode-function-method-name-face
+  "Face name to use for function names.")
 
 (defface typst-mode-field-name-face
   '((t :inherit font-lock-string-face))
   "Face for field name."
   :group 'typst-mode-faces)
+(defvar typst-mode-field-name-face  'typst-mode-field-name-face
+  "Face name to use for function names.")
 
 ;; @ markup mode
 (defface typst-mode-markup-emphasis-face
   '((t :slant italic))
   "Face for emphasis text."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-emphasis-face  'typst-mode-markup-emphasis-face
+  "Face name to use for emphasis text.")
 
 (defface typst-mode-markup-strong-face
   '((t :weight bold))
   "Face for strong text."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-strong-face  'typst-mode-markup-strong-face
+  "Face name to use for strong text.")
 
 (defface typst-mode-markup-underline-face
   '((t :underline t))
   "Face for underline text."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-underline-face  'typst-mode-markup-underline-face
+  "Face name to use for underline text.")
 
 (defface typst-mode-markup-raw-text-face
   '((t :foreground "dim gray"))
   "Face for raw-text."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-raw-text-face  'typst-mode-markup-raw-text-face
+  "Face name to use for raw text.")
 
 (defface typst-mode-markup-label-reference-face
   '((t :foreground "blue"))
   "Face for label and reference."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-label-reference-face  'typst-mode-markup-label-reference-face
+  "Face name to use for label and reference.")
 
 (defface typst-mode-markup-heading-1-face
   '((t :weight bold :height 150))
   "Face for heading 1."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-heading-1-face  'typst-mode-markup-heading-1-face
+  "Face name to use for heading 1.")
 
 (defface typst-mode-markup-heading-2-face
   '((t :inherit typst-mode-markup-heading-1-face :height 140))
   "Face for heading 2."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-heading-2-face  'typst-mode-markup-heading-2-face
+  "Face name to use for heading 2.")
 
 (defface typst-mode-markup-heading-3-face
   '((t :inherit typst-mode-markup-heading-1-face :height 130))
   "Face for heading 3."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-heading-3-face  'typst-mode-markup-heading-3-face
+  "Face name to use for heading 3.")
 
 (defface typst-mode-markup-heading-4-face
   '((t :inherit typst-mode-markup-heading-1-face :height 120))
   "Face for heading 4."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-heading-4-face  'typst-mode-markup-heading-4-face
+  "Face name to use for heading 4.")
 
 (defface typst-mode-markup-heading-5-face
   '((t :inherit typst-mode-markup-heading-1-face :height 110))
   "Face for heading 5."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-heading-5-face  'typst-mode-markup-heading-5-face
+  "Face name to use for heading 5.")
 
 (defface typst-mode-markup-term-list-face
   '((t :weight bold))
   "Face for heading 5."
   :group 'typst-mode-markup-faces)
+(defvar typst-mode-markup-term-list-face  'typst-mode-markup-term-list-face
+  "Face name to use for heading 5.")
 
 (defface typst-mode-markup-slash-face
   '((t :foreground "blue"))
   "Face for slash."
   :group 'typst-mode-markup-faces)
-
-;; @ corresponding variables ============
-(defvar typst-mode-keyword-face  'typst-mode-keyword-face
-  "Face name to use for Keywords.")
-
-(defvar typst-mode-operator-face 'typst-mode-operator-face
-  "Face name to use for Operators.")
-
-(defvar typst-mode-constant-face 'typst-mode-constant-face
-  "Face name to use for Types.")
-
-(defvar typst-mode-symbol-face 'typst-mode-symbol-face
-  "Face name to use for Symbols." )
-
-(defvar typst-mode-comment-face  'typst-mode-comment-face
-  "Face name to use for comment.")
-
-(defvar typst-mode-function-method-name-face  'typst-mode-function-method-name-face
-  "Face name to use for function names.")
-
-(defvar typst-mode-field-name-face  'typst-mode-field-name-face
-  "Face name to use for function names.")
-
-;; @ markup
-(defvar typst-mode-method-name-face  'typst-mode-method-name-face
-  "Face name to use for method names.")
-
-(defvar typst-mode-markup-emphasis-face  'typst-mode-markup-emphasis-face
-  "Face name to use for emphasis text.")
-
-(defvar typst-mode-markup-strong-face  'typst-mode-markup-strong-face
-  "Face name to use for strong text.")
-
-(defvar typst-mode-markup-underline-face  'typst-mode-markup-underline-face
-  "Face name to use for underline text.")
-
-(defvar typst-mode-markup-raw-text-face  'typst-mode-markup-raw-text-face
-  "Face name to use for raw text.")
-
-(defvar typst-mode-markup-label-reference-face  'typst-mode-markup-label-reference-face
-  "Face name to use for label and reference.")
-
-(defvar typst-mode-markup-heading-1-face  'typst-mode-markup-heading-1-face
-  "Face name to use for heading 1.")
-
-(defvar typst-mode-markup-heading-2-face  'typst-mode-markup-heading-2-face
-  "Face name to use for heading 2.")
-
-(defvar typst-mode-markup-heading-3-face  'typst-mode-markup-heading-3-face
-  "Face name to use for heading 3.")
-
-(defvar typst-mode-markup-heading-4-face  'typst-mode-markup-heading-4-face
-  "Face name to use for heading 4.")
-
-(defvar typst-mode-markup-heading-5-face  'typst-mode-markup-heading-5-face
-  "Face name to use for heading 5.")
-
-(defvar typst-mode-markup-term-list-face  'typst-mode-markup-term-list-face
-  "Face name to use for heading 5.")
-
 (defvar typst-mode-markup-slash-face  'typst-mode-markup-slash-face
   "Face name to use for slash.")
 
