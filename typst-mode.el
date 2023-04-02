@@ -594,9 +594,6 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (define-hostmode typst--poly-hostmode
   :mode 'typst--markup-mode)
 
-(defconst typst--poly-code-head-multiple-line-keywords
-  '("let" "set" "show" "if" "for" "while"))
-
 (define-innermode typst--poly-code-oneline-innermode
   :mode 'typst--code-mode
   ;; NOTE: here one line code mode must start with "#" in the line beginning to prevent occurrence in multi-line code block (for instance `[ #hello ]`. In multi-line code block, thanks to indentation, there must be blank before "#")
@@ -611,7 +608,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (define-innermode typst--poly-code-block-curly-brackets-innermode
   ;; code mode inside multi-line "{ }" block
   :mode 'typst--code-mode
-  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#") (? (or ,@typst--poly-code-head-multiple-line-keywords)) (*? (not "\n" )) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
+  :head-matcher `(,(eval `(rx bol (group-n 1 "#") (*? (not "\n")) "{" (*? (not (or "{" "(" "[" "}"))) eol)) . 1)
   :tail-matcher `(,(rx (* blank) (group-n 1 "}" ) (* blank) eol) . 1)
   :head-mode 'host
   :tail-mode 'host)
@@ -619,7 +616,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (define-innermode typst--poly-code-block-parentheses-innermode
   ;; code mode inside multi-line "( )" block
   :mode 'typst--code-mode
-  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#") (? (or ,@typst--poly-code-head-multiple-line-keywords )) (*? (not "\n" )) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
+  :head-matcher `(,(eval `(rx bol (group-n 1 "#") (*? (not "\n" )) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
   :tail-matcher `(,(rx (* blank) (group-n 1 ")") (* blank) eol) . 1)
   :head-mode 'host
   :tail-mode 'host)
