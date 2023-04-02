@@ -412,7 +412,8 @@
      (,typst--code-symbol-regexp 1 typst-mode-symbol-face)
      (,typst--code-function-method-regexp 1 typst-mode-function-method-name-face) ;; must be placed before typst--code-field-regexp 
      (,typst--code-field-regexp 1 typst-mode-field-name-face)
-     (,typst--code-variable-regexp 1 typst-mode-variable-name-face))
+     ;; (,typst--code-variable-regexp 1 typst-mode-variable-name-face) ;; NOTE
+     )
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--math-font-lock-keywords
