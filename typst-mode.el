@@ -333,6 +333,9 @@
   (rx (or (and (or bol (1+ whitespace)) "//" (*? anything) eol)
         (and (or bol (1+ whitespace)) "/*" (*? anything) "*/"))))
 
+(defconst typst--markup-strong-regexp ;; don't interfer URLs
+  (rx "*" (+ (or (syntax word) blank)) "*"))
+
 (defconst typst--markup-emphasis-regexp
   (rx (1+ blank) "_" (1+ (not blank)) "_" (1+ blank)))
 
@@ -383,7 +386,7 @@
      (,typst--markup-else-keyword-regexp 1 typst-mode-keyword-face)
      ("#\\w+" . typst-mode-function-method-name-face)
      (,typst--markup-comment-regexp . typst-mode-comment-face)
-     ("\\*\\w+\\*" . typst-mode-markup-strong-face) ;; strong
+     (,typst--markup-strong-regexp . typst-mode-markup-strong-face) ;; strong
      (,typst--markup-emphasis-regexp . typst-mode-markup-emphasis-face) ;; emphasized
      (,typst--markup-raw-text-regexp . typst-mode-markup-raw-text-face) ;; raw text
      (,typst--markup-link-regexp . typst-mode-markup-underline-face) ;; link
