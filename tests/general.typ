@@ -14,7 +14,6 @@
 		#v(1em, weak: true)
 		#date
 	]
-
 	
 	// Author information.
 	pad(

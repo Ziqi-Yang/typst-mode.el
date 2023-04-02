@@ -95,6 +95,20 @@
   :type 'string
   :group 'typst-mode)
 
+(defconst typst--puncts
+  '("+" "-" "*" "/" "<"  ">" "=" ;; operator
+     "`" "~" "!" "@" "#" "$" "%" "^" "&" "-" "_" "|" "?"
+     "{" "}" "(" ")" "[" "]"
+     "," "." "\\")
+  "All punctuation characters")
+
+(defun typst--punct-exclude (exclude-list)
+  "Exclude all elements from `exclude-list' in `typst--puncts'"
+  (let ((punct typst--puncts))
+	  (dolist (chr exclude-list)
+		  (setq punct (remove chr punct)))
+	  punct))
+
 ;;; Faces ===================================================
 (defface typst-mode-keyword-face
   '((t :inherit font-lock-keyword-face))
@@ -200,7 +214,7 @@
 (defvar typst-mode-operator-face 'typst-mode-operator-face
   "Face name to use for Operators.")
 
-(defvar typst-mode-type-face 'typst-mode-type-face
+(defvar typst-mode-constant-face 'typst-mode-constant-face
   "Face name to use for Types.")
 
 (defvar typst-mode-symbol-face 'typst-mode-symbol-face
@@ -210,6 +224,9 @@
   "Face name to use for comment.")
 
 (defvar typst-mode-function-method-name-face  'typst-mode-function-method-name-face
+  "Face name to use for function names.")
+
+(defvar typst-mode-field-name-face  'typst-mode-field-name-face
   "Face name to use for function names.")
 
 ;; @ markup
@@ -277,10 +294,7 @@
 (defconst typst--code-constant-regexp
   ;; TODO not graceful
   ;; exclude `.` `%` in rx's character set `punct`
-  (let ((puncts '("+" "-" "*" "/" "<"  ">" "=" ;; operator
-                   "`" "~" "!" "@" "#" "$" "^" "&" "-" "_" "|" "?"
-                   "{" "}" "(" ")" "[" "]"
-                   "," "\\")))
+  (let ((puncts (typst--punct-exclude '("." "%"))))
     (eval `(rx (or ,@puncts blank bol)
              (group-n 1
                (or
@@ -295,14 +309,10 @@
                  ;; pass relative length
                  (seq (1+ (or digit "e" ".")) "fr") ;; fraction
                  ;; pass color TODO 
-                 ;; pass symbol TODO
                  ;; pass string (already in syntax table)
-                 ;; pass content TODO
                  ;; pass array
                  ;; pass dictionary
-                 ;; pass function/method TODO 
                  ;; pass arguments 
-                 ;; pass module TODO
                  ))
              (or ,@puncts blank eol))))
   "Constant regexp for typst code mode")
@@ -311,13 +321,18 @@
   (rx (or punct blank) (group-n 1 (1+ (syntax word))) ".")
   "Symbol regexp for typst code mode")
 
-;; (defconst typst--code-field-regexp
-;;   (rx (or punct blank) (group-n 1 (1+ (syntax word))) ".")
-;;   "Symbol regexp for typst code mode")
+(defconst typst--code-field-regexp
+  (rx (or punct blank) (1+ (syntax word)) "." (group-n 1 (+ (syntax word))))
+  "Field regexp for typst code mode")
 
-;; (defconst typst--code-function-method-regexp
-;;   (rx (or punct blank) (group-n 1 (1+ (syntax word))) ".")
-;;   "Symbol regexp for typst code mode")
+(defconst typst--code-function-method-regexp
+  (rx (or punct blank "") (group-n 1 (+ (syntax word))) "(")
+  "Function/Method regexp for typst code mode")
+
+(defconst typst--code-variable-regexp
+  (let ((punct (typst--punct-exclude '(":"))))
+    (eval `(rx (or blank "#" "") (group-n 1 (+ (syntax word))) (* blank) (or ,@punct eol))))
+  "Function/Method regexp for typst code mode")
 
 ;; @ markup
 (defconst typst--markup-keywords-regexp
@@ -406,8 +421,11 @@
 (defvar typst--code-font-lock-keywords
   `((,typst--code-keywords-regexp 1 typst-mode-keyword-face)
      (,typst--code-operators-regexp . typst-mode-operator-face)
-     (,typst--code-constant-regexp 1 typst-mode-type-face)
-     (,typst--code-symbol-regexp 1 typst-mode-symbol-face))
+     (,typst--code-constant-regexp 1 typst-mode-constant-face)
+     (,typst--code-symbol-regexp 1 typst-mode-symbol-face)
+     (,typst--code-function-method-regexp 1 typst-mode-function-method-name-face) ;; must be placed before typst--code-field-regexp 
+     (,typst--code-field-regexp 1 typst-mode-field-name-face)
+     (,typst--code-variable-regexp 1 font-lock-variable-name-face))
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--math-font-lock-keywords
@@ -421,14 +439,14 @@
 (defvar typst--base-syntax-table
   (let ((syntax-table (make-syntax-table)))
     (modify-syntax-entry ?\" "." syntax-table) ;; change the default syntax entry for double quote(string quote character '"')
-  (modify-syntax-entry ?\n "> b" syntax-table)
-  (modify-syntax-entry ?\( "(" syntax-table)
-  (modify-syntax-entry ?\[ "(" syntax-table)
-  (modify-syntax-entry ?\{ "(" syntax-table)
-  (modify-syntax-entry ?\) ")" syntax-table)
-  (modify-syntax-entry ?\] ")" syntax-table)
-  (modify-syntax-entry ?\} ")" syntax-table)
-  syntax-table)
+     (modify-syntax-entry ?\n "> b" syntax-table)
+     (modify-syntax-entry ?\( "(" syntax-table)
+     (modify-syntax-entry ?\[ "(" syntax-table)
+     (modify-syntax-entry ?\{ "(" syntax-table)
+     (modify-syntax-entry ?\) ")" syntax-table)
+     (modify-syntax-entry ?\] ")" syntax-table)
+     (modify-syntax-entry ?\} ")" syntax-table)
+     syntax-table)
   "Syntax table for `typst--markup-mode'.")
 
 (defvar typst--markup-syntax-table
