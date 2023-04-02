@@ -106,10 +106,16 @@
   "Face for operator"
   :group 'typst-mode-faces)
 
-(defface typst-mode-type-face
+(defface typst-mode-constant-face
   '((t :inherit font-lock-constant-face))
   "Face for operator"
   :group 'typst-mode-faces)
+
+(defface typst-mode-symbol-face
+  '((t :inherit font-lock-variable-name-face))
+  "Face for symbol."
+  :group 'typst-mode-markup-faces)
+
 
 (defface typst-mode-comment-face
   '((t :inherit font-lock-comment-face))
@@ -192,16 +198,18 @@
   "Face for slash."
   :group 'typst-mode-markup-faces)
 
-
 ;; @ corresponding variables ============
 (defvar typst-mode-keyword-face  'typst-mode-keyword-face
-  "Face name to use for keywords.")
+  "Face name to use for Keywords.")
 
 (defvar typst-mode-operator-face 'typst-mode-operator-face
-  "Face name to use for operators.")
+  "Face name to use for Operators.")
 
 (defvar typst-mode-type-face 'typst-mode-type-face
-  "Face name to use for types.")
+  "Face name to use for Types.")
+
+(defvar typst-mode-symbol-face 'typst-mode-symbol-face
+  "Face name to use for Symbols." )
 
 (defvar typst-mode-comment-face  'typst-mode-comment-face
   "Face name to use for comment.")
@@ -274,7 +282,7 @@
   (eval `(rx blank (group-n 1 (or ,@typst--base-operators)) blank))
   "Operators regexp for typst code mode")
 
-(defconst typst--code-type-regexp
+(defconst typst--code-constant-regexp
   ;; TODO not graceful
   ;; exclude `.` `%` in rx's character set `punct`
   (let ((puncts '("+" "-" "*" "/" "<"  ">" "=" ;; operator
@@ -304,7 +312,20 @@
                  ;; pass arguments 
                  ;; pass module TODO
                  ))
-             (or ,@puncts blank eol)))))
+             (or ,@puncts blank eol))))
+  "Constant regexp for typst code mode")
+
+(defconst typst--code-symbol-regexp
+  (rx (or punct blank) (group-n 1 (1+ (syntax word))) ".")
+  "Symbol regexp for typst code mode")
+
+;; (defconst typst--code-field-regexp
+;;   (rx (or punct blank) (group-n 1 (1+ (syntax word))) ".")
+;;   "Symbol regexp for typst code mode")
+
+;; (defconst typst--code-function-method-regexp
+;;   (rx (or punct blank) (group-n 1 (1+ (syntax word))) ".")
+;;   "Symbol regexp for typst code mode")
 
 ;; @ markup
 (defconst typst--markup-keywords-regexp
@@ -393,7 +414,8 @@
 (defvar typst--code-font-lock-keywords
   `((,typst--code-keywords-regexp 1 typst-mode-keyword-face)
      (,typst--code-operators-regexp . typst-mode-operator-face)
-     (,typst--code-type-regexp 1 typst-mode-type-face)) ;; TODO change face
+     (,typst--code-constant-regexp 1 typst-mode-type-face)
+     (,typst--code-symbol-regexp 1 typst-mode-symbol-face))
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--math-font-lock-keywords
@@ -600,7 +622,7 @@ implementations: `typst-mode' and `typst-ts-mode'."
 (define-innermode typst--poly-code-block-parentheses-innermode
   ;; code mode inside multi-line "( )" block
   :mode 'typst--code-mode
-  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#" (or ,@typst--poly-code-head-multiple-line-keywords "")) (*? (not "\n" )) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
+  :head-matcher `(,(eval `(rx bol (* blank) (group-n 1 "#") (or ,@typst--poly-code-head-multiple-line-keywords "") (*? (not "\n" )) "(" (*? (not (or "{" "(" "[" ")"))) eol)) . 1)
   :tail-matcher `(,(rx (* blank) (group-n 1 ")") (* blank) eol) . 1)
   :head-mode 'host
   :tail-mode 'host)
