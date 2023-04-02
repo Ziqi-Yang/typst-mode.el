@@ -80,3 +80,6 @@ For those stuffs cannot be done in short future.
    }
    #+end_src
    The issue may caused by Polymode. I have created an issue here: [[https://github.com/polymode/polymode/issues/328][https://github.com/polymode/polymode/issues/328]]
+
+   *Temporary solution*: \\
+Manually execute the =typst-indent-line= command on the first line of the code block. Then the following indentations will work properly.   
