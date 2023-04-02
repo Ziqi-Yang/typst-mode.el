@@ -314,7 +314,7 @@
 
 ;; TODO support function/method call
 (defconst typst--code-variable-regexp
-  (let ((punct (typst--punct-exclude '(":" "-" "_" ")" ","))))
+  (let ((punct (typst--punct-exclude '(":" "-" "_" "," ")" "]" "}"))))
     (eval `(rx (or blank bol "#") (group-n 1 (+ (syntax word))) (* blank) (or ,@punct blank eol))))
   "Function/Method regexp for typst code mode")
 

@@ -63,6 +63,7 @@ faces and custom variables with prefix =typst= or =typst-mode=
 1. [ ] fix math mode 
 2. [ ] add treesit mode
 3. [ ] show compile errors at real time when in Typst =watch= mode
+4. [ ] provide three level of highlighting
 
 * Current Shortages
 For those stuffs cannot be done in short future.
