@@ -160,6 +160,13 @@
 (defvar typst-mode-field-name-face  'typst-mode-field-name-face
   "Face name to use for function names.")
 
+(defface typst-mode-variable-name-face
+  '((t :inherit font-lock-variable-name-face))
+  "Face for field name."
+  :group 'typst-mode-faces)
+(defvar typst-mode-variable-name-face  'typst-mode-variable-name-face
+  "Face name to use for function names.")
+
 ;; @ markup mode
 (defface typst-mode-markup-emphasis-face
   '((t :slant italic))
@@ -305,9 +312,10 @@
   (rx (or punct blank "") (group-n 1 (+ (syntax word))) "(")
   "Function/Method regexp for typst code mode")
 
+;; TODO support function/method call
 (defconst typst--code-variable-regexp
-  (let ((punct (typst--punct-exclude '(":"))))
-    (eval `(rx (or blank "#" "") (group-n 1 (+ (syntax word))) (* blank) (or ,@punct eol))))
+  (let ((punct (typst--punct-exclude '(":" "-" "_" ")" ","))))
+    (eval `(rx (or blank bol "#") (group-n 1 (+ (syntax word))) (* blank) (or ,@punct blank eol))))
   "Function/Method regexp for typst code mode")
 
 ;; @ markup
@@ -401,7 +409,7 @@
      (,typst--code-symbol-regexp 1 typst-mode-symbol-face)
      (,typst--code-function-method-regexp 1 typst-mode-function-method-name-face) ;; must be placed before typst--code-field-regexp 
      (,typst--code-field-regexp 1 typst-mode-field-name-face)
-     (,typst--code-variable-regexp 1 font-lock-variable-name-face))
+     (,typst--code-variable-regexp 1 typst-mode-variable-name-face))
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--math-font-lock-keywords
