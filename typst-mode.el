@@ -122,7 +122,7 @@
   "Face for comment."
   :group 'typst-mode-faces)
 
-(defface typst-mode-function-name-face
+(defface typst-mode-function-method-name-face
   '((t :inherit font-lock-function-name-face))
   "Face for function name."
   :group 'typst-mode-faces)
@@ -130,11 +130,6 @@
 (defface typst-mode-field-name-face
   '((t :inherit font-lock-string-face))
   "Face for field name."
-  :group 'typst-mode-faces)
-
-(defface typst-mode-method-name-face
-  '((t :inherit typst-mode-field-name-face))
-  "Face for function name."
   :group 'typst-mode-faces)
 
 ;; @ markup mode
@@ -214,11 +209,8 @@
 (defvar typst-mode-comment-face  'typst-mode-comment-face
   "Face name to use for comment.")
 
-(defvar typst-mode-function-name-face  'typst-mode-function-name-face
+(defvar typst-mode-function-method-name-face  'typst-mode-function-method-name-face
   "Face name to use for function names.")
-
-(defvar typst-mode-field-name-face  'typst-mode-field-name-face
-  "Face name to use for field names.")
 
 ;; @ markup
 (defvar typst-mode-method-name-face  'typst-mode-method-name-face
@@ -275,7 +267,7 @@
 ;; @ code
 (defconst typst--code-keywords-regexp
   ;; group 1
-  (eval `(rx (or blank bol "{") (group-n 1 (or ,@typst--base-keywords "else")) (or blank eol)))
+  (eval `(rx (or blank bol "{") (group-n 1 (or ,@typst--base-keywords "else")) (or blank eol ":")))
   "Keywords regexp for typst code mode")
 
 (defconst typst--code-operators-regexp
@@ -390,7 +382,7 @@
 (defvar typst--markup-font-lock-keywords
   `((,typst--markup-keywords-regexp . typst-mode-keyword-face)
      (,typst--markup-else-keyword-regexp 1 typst-mode-keyword-face)
-     ("#\\w+" . typst-mode-function-name-face)
+     ("#\\w+" . typst-mode-function-method-name-face)
      (,typst--markup-comment-regexp . typst-mode-comment-face)
      ("\\*\\w+\\*" . typst-mode-markup-strong-face) ;; strong
      (,typst--markup-emphasis-regexp . typst-mode-markup-emphasis-face) ;; emphasized
