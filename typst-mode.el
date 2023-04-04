@@ -731,12 +731,14 @@ If BACKWARD is non-nil, search backward instead of forward."
   "Major mode for editing Typst files.
 
 \\{typst-mode-map}"
-  (run-hooks 'typst-mode-hook)
   ;; set compile-command
+  (setq-local comment-start "//")
+  (setq-local comment-end "")
   (let ((file-name (file-name-nondirectory (buffer-file-name))))
     (setq-local compile-command
       (concat typst-executable-location
-        " " file-name " " (concat (file-name-sans-extension file-name) ".pdf")))))
+        " " file-name " " (concat (file-name-sans-extension file-name) ".pdf"))))
+  (run-hooks 'typst-mode-hook))
 
 ;; TODO support treesit
 ;; (define-polymode typst-mode
