@@ -337,13 +337,13 @@
   (rx "*" (+ (or (syntax word) blank)) "*"))
 
 (defconst typst--markup-emphasis-regexp
-  (rx (1+ blank) "_" (1+ (not blank)) "_" (1+ blank)))
+  (rx "_" (+ (or (syntax word) blank)) "_"))
 
 (defconst typst--markup-raw-text-regexp
   (rx "`" (1+ (not blank)) "`"))
 
 (defconst typst--markup-link-regexp
-  (rx (or "http://" "https://") (1+ (or alnum ":" "." "/")))) ;; TODO not perfect
+  (rx (or "http://" "https://") (1+ (or alnum ":" "." "/" "-"))))
 
 (defconst typst--markup-label-regexp
   (rx "<" (1+ (not (any punct blank))) ">"))
