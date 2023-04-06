@@ -7,6 +7,7 @@ none, auto, false, true, 1, 1.1, 1e1
 100.0%, 1.1fr
 }
 
+
 = styles<label>
 *strong* _emphasized_ `hello` https://typst.app/ @label
 

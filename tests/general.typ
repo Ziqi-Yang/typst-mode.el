@@ -1,8 +1,5 @@
 #let cv(author: "", contacts: (), body) = {
-  set document(author: author, title: author)
-  set text(font: "Linux Libertine", lang: "en")
-  
-  show heading: it => [
+	show heading: it => [
     #pad(bottom: -10pt, [#smallcaps(it.body)])
     #line(length: 100%, stroke: 1pt)
   ]
@@ -142,4 +139,3 @@ A software developer interested in various programming domains. Core memeber of 
 = Miscellaneous
 - Languages: English - fluent, Chinese - native, Taiwanese - native.
 - Member of `Tauri`, `rust-tw`, and more, contributed to `rust`, `async-std`, `veloren`, `tauri`, `riscv-opcodes`, `grcov`, `windows-rs`, `gtk-rs`, `winit`, and other projects.
-

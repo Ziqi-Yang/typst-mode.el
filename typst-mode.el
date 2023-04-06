@@ -468,43 +468,57 @@
     map))
 
 ;;; Indentation =============================================
-(defun typst-indent-line ()
-  "Indent current line in Typst mode.
-(1)If current line is the beginning line of the buffer, then indentation -> 0;
-Else [ (2)If the beginning of the visual part of the current line is close delimiter character -> indentation decreases,
-      (3)Then check if the end of previous line contains an open delimiter character and there is no close delimiter after it -> indentation increases]"
+;; NOTE: this code is from zig-mode: https://github.com/ziglang/zig-mode/blob/master/zig-mode.el
+(defun typst-paren-nesting-level () (nth 0 (syntax-ppss)))
+
+;; NOTE: this code is from zig-mode: https://github.com/ziglang/zig-mode/blob/master/zig-mode.el
+(defun typst-mode-indent-line ()
   (interactive)
-  ;; (message "%s" (current-indentation))
-  (save-excursion
-    (beginning-of-line)
-    (let ((not-indented t)
-           (cur-indent 0))
-      (if (bobp) ;; (1)
-        (progn (indent-line-to 0)
-          (setq not-indented nil)))
-      (when not-indented
-        ;; (3)
-        (save-excursion
-          (forward-line -1)
-          (setq cur-indent (current-indentation))
-          ;; also works for complex scenario like {{}} [] () { (
-          ;; func {(
-          ;;   code
-          ;; )}
-          ;; hello (a: {
-          ;;   value
-          ;; }, b: {
-          ;;   value
-          ;; })
-          (if (looking-at (rx (*? not-newline) (or (syntax open-parenthesis) "{") (* (not (syntax close-parenthesis))) eol))
-            (setq cur-indent (+ cur-indent typst-indent-offset))))
-        ;; (2)
-        (if (looking-at (rx (* blank) (syntax close-parenthesis)))
-          (setq cur-indent  (- cur-indent typst-indent-offset)))
-        ;; (message cur-indent)
-        (if (< cur-indent 0) ;; special cases
-          (setq cur-indent 0))
-        (indent-line-to cur-indent)))))
+  ;; First, calculate the column that this line should be indented to.
+  (let ((indent-col
+          (save-excursion
+            (back-to-indentation)
+            (let* (;; paren-level: How many sets of parens (or other delimiters)
+                    ;;   we're within, except that if this line closes the
+                    ;;   innermost set(s) (e.g. the line is just "}"), then we
+                    ;;   don't count those set(s).
+                    (paren-level
+                      (save-excursion
+                        (while (looking-at "[]})]") (forward-char))
+                        (typst-paren-nesting-level)))
+                    ;; prev-block-indent-col: If we're within delimiters, this is
+                    ;; the column to which the start of that block is indented
+                    ;; (if we're not, this is just zero).
+                    (prev-block-indent-col
+                      (if (<= paren-level 0) 0
+                        (save-excursion
+                          (while (>= (typst-paren-nesting-level) paren-level)
+                            (backward-up-list)
+                            (back-to-indentation))
+                          (current-column))))
+                    ;; base-indent-col: The column to which a complete expression
+                    ;;   on this line should be indented.
+                    (base-indent-col
+                      (if (<= paren-level 0)
+                        prev-block-indent-col
+                        (or (save-excursion
+                              (backward-up-list)
+                              (forward-char)
+                              (and (not (looking-at " *\\(//[^\n]*\\)?\n"))
+                                (current-column)))
+                          (+ prev-block-indent-col typst-indent-offset)))))
+              ;; (message "%s %s %s %s" paren-level prev-block-indent-col base-indent-col is-expr-continutation)
+              base-indent-col))))
+    ;; If point is within the indentation whitespace, move it to the end of the
+    ;; new indentation whitespace (which is what the indent-line-to function
+    ;; always does).  Otherwise, we don't want point to move, so we use a
+    ;; save-excursion.
+    (if (<= (current-column) (current-indentation))
+      ;; (progn
+      (indent-line-to indent-col)
+      ;; (message "%s %s" (current-column) (current-indentation))
+      ;; )
+      (save-excursion (indent-line-to indent-col)))))
 
 ;;; Functions ===============================================
 (defun typst--process-exists-p (process-name)
@@ -564,7 +578,7 @@ concrete implementations.  Currently there are two concrete
 implementations: `typst-mode' and `typst-ts-mode'."
   ;; :syntax-table typst-syntax-table
   (setq-local tab-width 4
-    indent-line-function 'typst-indent-line
+    indent-line-function 'typst-mode-indent-line
     tab-width typst-code-tab-width
     font-lock-keywords-only t))
 
