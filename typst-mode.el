@@ -31,11 +31,12 @@
 
 ;;; Usage:
 ;;; Customization:
-;;; Code:
+;;; Code: 
 
 (require 'polymode)
 (require 'rx)
 
+;;; Groups ==================================================
 (defgroup typst-mode nil
   "Typst Writing."
   :prefix "typst-"
@@ -109,7 +110,7 @@
 		  (setq punct (remove chr punct)))
 	  punct))
 
-;;; Faces & Corresponding variables ===================================================
+;;; Faces & Corresponding variables =========================
 (defface typst-mode-keyword-face
   '((t :inherit font-lock-keyword-face))
   "Face for keyword."
@@ -252,7 +253,7 @@
 (defvar typst-mode-markup-slash-face  'typst-mode-markup-slash-face
   "Face name to use for slash.")
 
-;;; Regexps & Keywords =======================================
+;;; Regexps & Keywords ======================================
 
 ;; @ base
 (defconst typst--base-keywords
@@ -541,6 +542,11 @@
   (start-process-shell-command "typst preview" typst-buffer-name
     (format typst-pdf-preview-command (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".pdf"))))
 
+(defun typst-compile-preview()
+  "Compile and then open the compiled pdf file for preview."
+  (interactive)
+  (compile (concat compile-command " --open")))
+
 (defun typst-watch ()
   "Watch(real time compile & preview) the corresponding pdf file."
   (interactive)
@@ -745,13 +751,13 @@ If BACKWARD is non-nil, search backward instead of forward."
   "Major mode for editing Typst files.
 
 \\{typst-mode-map}"
-  ;; set compile-command
   (setq-local comment-start "//")
   (setq-local comment-end "")
+  ;; set compile-command
   (let ((file-name (file-name-nondirectory (buffer-file-name))))
     (setq-local compile-command
       (concat typst-executable-location
-        " " file-name " " (concat (file-name-sans-extension file-name) ".pdf"))))
+        " compile " file-name " " (concat (file-name-sans-extension file-name) ".pdf"))))
   (run-hooks 'typst-mode-hook))
 
 ;; TODO support treesit

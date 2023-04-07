@@ -3,7 +3,7 @@
 An Emacs major mode for [[https://typst.app/][typst]], a markup-based typesetting system.
 
 * Requirements
-external executable: [[https://github.com/typst/typst][typst]]
+external executable: [[https://github.com/typst/typst][typst]] (least version: =typst 0.1.0 (1c324765)=, which has =typst compile= subcommand)
 
 Emacs package: [[https://github.com/polymode/polymode][polymode]] (if you use =straight=, it will automatically download this requirement for you)
 
@@ -30,7 +30,7 @@ If you use other methods to load =typst-mode=, please consider creating a pull-r
 
 * Current Features
 ** Functions
-1. =typst-compile=  (default bind: =C-c C-c=)
+1. =typst-compile= (default bind: =C-c C-c=; also provide =typst-compile-preview=)
 2. =typst-preview= (default bind: =C-c C-p=)
 3. =typst-toggle-watch= (default bind: =C-c C-w=; also provide =typst-watch= and =typst-stop-watch=)
 ** Style
