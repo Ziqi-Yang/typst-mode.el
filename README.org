@@ -24,10 +24,6 @@ Minimum Emacs version hasn't been tested
 (require 'typst-mode)
 #+end_src
 
-** Other Methods
-For instance, Emacs' builtin =pakcage.el=. \\
-If you use other methods to load =typst-mode=, please consider creating a pull-request by simply clicking on the =edit= icon located in the top-right region of this README file.
-
 * Current Features
 ** Functions
 1. =typst-compile= (default bind: =C-c C-c=; also provide =typst-compile-preview=)
@@ -55,6 +51,11 @@ If you use other methods to load =typst-mode=, please consider creating a pull-r
 | Code expression  | name    | =#rect(width: 1cm)=    |
 | Character escape | ✓       | Tweet at us \#ad     |
 | Comment          | ✓       | =/* block */, // line= |
+*** Math Mode
+Math inside pair of =$= notation.
+Currently not supported
+*** Code Mode
+Supported.
 
 * Customization
 faces and custom variables with prefix =typst= or =typst-mode=
