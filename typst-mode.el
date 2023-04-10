@@ -111,63 +111,6 @@
 	  punct))
 
 ;;; Faces & Corresponding variables =========================
-(defface typst-mode-keyword-face
-  '((t :inherit font-lock-keyword-face))
-  "Face for keyword."
-  :group 'typst-mode-faces)
-(defvar typst-mode-keyword-face  'typst-mode-keyword-face
-  "Face name to use for Keywords.")
-
-(defface typst-mode-operator-face
-  '((t :inherit font-lock-builtin-face))
-  "Face for operator"
-  :group 'typst-mode-faces)
-(defvar typst-mode-operator-face 'typst-mode-operator-face
-  "Face name to use for Operators.")
-
-(defface typst-mode-constant-face
-  '((t :inherit font-lock-constant-face))
-  "Face for operator"
-  :group 'typst-mode-faces)
-(defvar typst-mode-constant-face 'typst-mode-constant-face
-  "Face name to use for Types.")
-
-(defface typst-mode-symbol-face
-  '((t :inherit font-lock-variable-name-face))
-  "Face for symbol."
-  :group 'typst-mode-markup-faces)
-(defvar typst-mode-symbol-face 'typst-mode-symbol-face
-  "Face name to use for Symbols." )
-
-
-(defface typst-mode-comment-face
-  '((t :inherit font-lock-comment-face))
-  "Face for comment."
-  :group 'typst-mode-faces)
-(defvar typst-mode-comment-face  'typst-mode-comment-face
-  "Face name to use for comment.")
-
-(defface typst-mode-function-method-name-face
-  '((t :inherit font-lock-function-name-face))
-  "Face for function name."
-  :group 'typst-mode-faces)
-(defvar typst-mode-function-method-name-face  'typst-mode-function-method-name-face
-  "Face name to use for function names.")
-
-(defface typst-mode-field-name-face
-  '((t :inherit font-lock-string-face))
-  "Face for field name."
-  :group 'typst-mode-faces)
-(defvar typst-mode-field-name-face  'typst-mode-field-name-face
-  "Face name to use for function names.")
-
-(defface typst-mode-variable-name-face
-  '((t :inherit font-lock-variable-name-face))
-  "Face for field name."
-  :group 'typst-mode-faces)
-(defvar typst-mode-variable-name-face  'typst-mode-variable-name-face
-  "Face name to use for function names.")
-
 ;; @ markup mode
 (defface typst-mode-markup-emphasis-face
   '((t :slant italic))
@@ -383,10 +326,10 @@
 
 ;; @ Keywords table
 (defvar typst--markup-font-lock-keywords
-  `((,typst--markup-keywords-regexp . typst-mode-keyword-face)
-     (,typst--markup-else-keyword-regexp 1 typst-mode-keyword-face)
-     ("#\\w+" . typst-mode-function-method-name-face)
-     (,typst--markup-comment-regexp . typst-mode-comment-face)
+  `((,typst--markup-keywords-regexp . font-lock-keyword-face)
+     (,typst--markup-else-keyword-regexp 1 font-lock-keyword-face)
+     ("#\\w+" . font-lock-function-name-face)
+     (,typst--markup-comment-regexp . font-lock-comment-face)
      (,typst--markup-strong-regexp . typst-mode-markup-strong-face) ;; strong
      (,typst--markup-emphasis-regexp . typst-mode-markup-emphasis-face) ;; emphasized
      (,typst--markup-raw-text-regexp . typst-mode-markup-raw-text-face) ;; raw text
@@ -407,13 +350,13 @@
   "Minimal highlighting expressions for typst mode")
 
 (defvar typst--code-font-lock-keywords
-  `((,typst--code-keywords-regexp 1 typst-mode-keyword-face)
-     (,typst--code-operators-regexp . typst-mode-operator-face)
-     (,typst--code-constant-regexp 1 typst-mode-constant-face)
-     (,typst--code-symbol-regexp 1 typst-mode-symbol-face)
-     (,typst--code-function-method-regexp 1 typst-mode-function-method-name-face) ;; must be placed before typst--code-field-regexp 
-     (,typst--code-field-regexp 1 typst-mode-field-name-face)
-     ;; (,typst--code-variable-regexp 1 typst-mode-variable-name-face) ;; NOTE
+  `((,typst--code-keywords-regexp 1 font-lock-keyword-face)
+     (,typst--code-operators-regexp . font-lock-builtin-face)
+     (,typst--code-constant-regexp 1 font-lock-constant-face)
+     (,typst--code-symbol-regexp 1 font-lock-variable-name-face)
+     (,typst--code-function-method-regexp 1 font-lock-function-name-face) ;; must be placed before typst--code-field-regexp 
+     (,typst--code-field-regexp 1 font-lock-string-face)
+     ;; (,typst--code-variable-regexp 1 font-lock-variable-name-face) ;; NOTE
      )
   "Minimal highlighting expressions for typst mode")
 
