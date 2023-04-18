@@ -1,4 +1,4 @@
-;;; typst-mode.el --- major mode for working with typst markup-based typesetting system -*- lexical-binding: t; -*-
+;;; typst-mode.el --- A major mode for working with Typst typesetting system -*- lexical-binding: t; -*-
 ;; Copyright (C) 2023, Ziqi Yang
 
 ;; This file is NOT part of Emacs.
@@ -18,10 +18,10 @@
 
 ;; Version: 0.1
 ;; Author: Ziqi Yang
-;; Keywords: typst editing typesetting writing
+;; Keywords: outlines 
 ;; URL: https://github.com/Ziqi-Yang/typst-mode.el
 ;; License: GNU General Public License >= 3
-;; Package-Requires: ((polymode "0.2.2"))
+;; Package-Requires: ((polymode "0.2.2") (emacs "24.3"))
 
 ;;; Commentary:
 
@@ -37,7 +37,7 @@
 (require 'rx)
 
 ;;; Groups ==================================================
-(defgroup typst-mode nil
+(defgroup typst nil
   "Typst Writing."
   :prefix "typst-"
   :group 'text
@@ -45,7 +45,7 @@
 
 (defgroup typst-mode-faces nil
   "Faces for syntax highlighting."
-  :group 'typst-mode
+  :group 'typst
   :group 'faces)
 
 (defgroup typst-mode-markup-faces nil
@@ -647,8 +647,7 @@ If BACKWARD is non-nil, search backward instead of forward."
               (1- (point) ))
             (progn
               (put-text-property 1 2 type t)
-              1)
-            ))))))
+              1)))))))
 ;; (typst--poly-math-find-head 1)
 ;; (typst--poly-math-find-tail)
 ;; $ $ $ $ $ $ $

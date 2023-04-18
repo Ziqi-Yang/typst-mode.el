@@ -7,8 +7,6 @@ external executable: [[https://github.com/typst/typst][typst]] (least version: =
 
 Emacs package: [[https://github.com/polymode/polymode][polymode]] (if you use =straight=, it will automatically download this requirement for you)
 
-Minimum Emacs version hasn't been tested
-
 * Installation
 ** Use-package and straight
 #+begin_src emacs-lisp
