@@ -18,7 +18,7 @@
 
 ;; Version: 0.1
 ;; Author: Ziqi Yang
-;; Keywords: outlines 
+;; Keywords: outlines
 ;; URL: https://github.com/Ziqi-Yang/typst-mode.el
 ;; License: GNU General Public License >= 3
 ;; Package-Requires: ((polymode "0.2.2") (emacs "24.3"))
@@ -67,34 +67,36 @@
 (defcustom typst-markup-tab-width  4
   "Default tab width for typst markup mode."
   :type 'integer
-  :group 'typst-mode)
+  :group 'typst)
 
 (defcustom typst-code-tab-width  4
   "Default tab width for typst code mode."
   :type 'integer
-  :group 'typst-mode)
+  :group 'typst)
 
-(defcustom typst-indent-offset 4
-  "Default indentation offset for Typst mode.")
+(defcustom typst-indent-offset  4
+  "Default indentation offset for Typst mode."
+  :type 'integer
+  :group 'typst)
 
 (defcustom typst-buffer-name  "*typst-mode*"
   "The output buffer name for some compilation and preview command."
   :type 'string
-  :group 'typst-mode)
+  :group 'typst)
 
 (defcustom typst-executable-location  "typst"
-  "The location for typst executable. If it is in your PATH, just use the name of the executable."
+  "The location or name(if in PATH) for typst executable."
   :type 'string
-  :group 'typst-mode)
+  :group 'typst)
 
 (defcustom typst-pdf-preview-command
   (cond
     ((eq system-type 'darwin) "open %s") ;; mac os
     ((eq system-type 'gnu/linux) "xdg-open %s")
     ((eq system-type 'windows-nt) "start %s"))
-  "Command to open/preview pdf. '%s' stand for the pdf file name."
+  "Command to open/preview pdf.  '%s' stand for the pdf file name."
   :type 'string
-  :group 'typst-mode)
+  :group 'typst)
 
 (defconst typst--puncts
   '("+" "-" "*" "/" "<"  ">" "=" ;; operator
@@ -104,7 +106,7 @@
   "All punctuation characters.")
 
 (defun typst--punct-exclude (exclude-list)
-  "Exclude all elements from `exclude-list' in `typst--puncts'."
+  "Exclude all elements from `EXCLUDE-LIST' in `typst--puncts'."
   (let ((punct typst--puncts))
 	  (dolist (chr exclude-list)
 		  (setq punct (remove chr punct)))
@@ -413,10 +415,13 @@
 
 ;;; Indentation =============================================
 ;; NOTE: this code is from zig-mode: https://github.com/ziglang/zig-mode/blob/master/zig-mode.el
-(defun typst-paren-nesting-level () (nth 0 (syntax-ppss)))
+(defun typst-paren-nesting-level ()
+  "Get the paren nesting level."
+  (nth 0 (syntax-ppss)))
 
 ;; NOTE: this code is from zig-mode: https://github.com/ziglang/zig-mode/blob/master/zig-mode.el
 (defun typst-mode-indent-line ()
+  "Indente line function for typst mode."
   (interactive)
   ;; First, calculate the column that this line should be indented to.
   (let ((indent-col
@@ -512,8 +517,7 @@
 (defun typst-toggle-watch()
   "Toggle tyspt watch."
   (interactive)
-  (let ((watch-process-name "typst watch" )
-         (preview-process-name "typst watch" ))
+  (let ((watch-process-name "typst watch" ))
     (if (typst--process-exists-p watch-process-name)
       (typst-stop-watch)
       (typst-watch))))
@@ -586,99 +590,101 @@ implementations: `typst-mode' and `typst-ts-mode'."
   :tail-mode 'host)
 
 
-(defun typst--find-unmarked-dollar (type &optional backward)
-  "Search for the next unmarked `$` character, where the `math-head` and `math-end` text properties are not set.
-If BACKWARD is non-nil, search backward instead of forward."
-  (let ((search-fn (if backward 're-search-backward 're-search-forward))
-         (opposite-search-fn (if backward 're-search-forward 're-search-backward))
-         (search-pattern "\\$")
-         (next-type-same-p t)
-         (found nil))
-    ;; only execute when (type=math-head) or (type=math-tail and backward=nil)
-    (if (or (eq type 'math-head)
-          (and (eq type 'math-tail) (eq backward nil)))
-      (progn
-        ;; first search backward to know the previous condition and set the count-need variable
-        (save-excursion
-          (funcall opposite-search-fn search-pattern nil t)
-          (setq next-type-same-p
-            ;; There shouldn't be a character that owns both of the math-head and math-tail property
-            (let ((math-head (get-text-property (if backward (point) (1- (point) )) 'math-head))
-                   (math-tail (get-text-property (if backward (point) (1- (point) )) 'math-tail)))
-              (cond
-                ((eq type 'math-head)
-                  ;; tail: same, head/nil: different
-                  (if (or math-tail
-                        (and (not backward) (not math-head) (not math-tail)))
-                    t))
-                ((eq type 'math-tail)
-                  (if math-head t))))))
-        (while (and (not found)
-                 (funcall search-fn search-pattern nil t))
-          (let ((math-head (get-text-property (if backward (point) (1- (point) )) 'math-head))
-                 (math-tail (get-text-property (if backward (point) (1- (point) )) 'math-tail)))
-            (when (and (not math-head) (not math-tail))
-              (cond
-                ((eq type 'math-head)
-                  (cond
-                    ((and (not math-head) (not math-tail))
-                      (if next-type-same-p
-                        (setq found t)))
-                    (math-head
-                      (setq next-type-same-p nil))
-                    (math-tail
-                      (setq next-type-same-p t))))
-                ((eq type 'math-tail)
-                  (cond
-                    ((and (not math-head) (not math-tail))
-                      (if next-type-same-p
-                        (setq found t)))
-                    (math-head
-                      (setq next-type-same-p t))
-                    (math-tail
-                      (setq next-type-same-p nil)))))))
-          (setq next-type-same-p (not next-type-same-p)))
-        (if found
-          (if (> (point) 1)
-            (progn
-              (if backward
-                (put-text-property (point) (1+ (point)) type t)
-                (put-text-property (1- (point)) (point) type t))
-              (1- (point) ))
-            (progn
-              (put-text-property 1 2 type t)
-              1)))))))
-;; (typst--poly-math-find-head 1)
-;; (typst--poly-math-find-tail)
-;; $ $ $ $ $ $ $
-;; (typst--poly-math-find-head -1)
+;; (defun typst--find-unmarked-dollar (type &optional backward)
+;;   "Search for the next unmarked `$` character.
+;; Where the `math-head` and `math-end` text properties are not set.
+;; If BACKWARD is non-nil, search backward instead of forward.
+;; Argument TYPE "
+;;   (let ((search-fn (if backward 're-search-backward 're-search-forward))
+;;          (opposite-search-fn (if backward 're-search-forward 're-search-backward))
+;;          (search-pattern "\\$")
+;;          (next-type-same-p t)
+;;          (found nil))
+;;     ;; only execute when (type=math-head) or (type=math-tail and backward=nil)
+;;     (if (or (eq type 'math-head)
+;;           (and (eq type 'math-tail) (eq backward nil)))
+;;       (progn
+;;         ;; first search backward to know the previous condition and set the count-need variable
+;;         (save-excursion
+;;           (funcall opposite-search-fn search-pattern nil t)
+;;           (setq next-type-same-p
+;;             ;; There shouldn't be a character that owns both of the math-head and math-tail property
+;;             (let ((math-head (get-text-property (if backward (point) (1- (point) )) 'math-head))
+;;                    (math-tail (get-text-property (if backward (point) (1- (point) )) 'math-tail)))
+;;               (cond
+;;                 ((eq type 'math-head)
+;;                   ;; tail: same, head/nil: different
+;;                   (if (or math-tail
+;;                         (and (not backward) (not math-head) (not math-tail)))
+;;                     t))
+;;                 ((eq type 'math-tail)
+;;                   (if math-head t))))))
+;;         (while (and (not found)
+;;                  (funcall search-fn search-pattern nil t))
+;;           (let ((math-head (get-text-property (if backward (point) (1- (point) )) 'math-head))
+;;                  (math-tail (get-text-property (if backward (point) (1- (point) )) 'math-tail)))
+;;             (when (and (not math-head) (not math-tail))
+;;               (cond
+;;                 ((eq type 'math-head)
+;;                   (cond
+;;                     ((and (not math-head) (not math-tail))
+;;                       (if next-type-same-p
+;;                         (setq found t)))
+;;                     (math-head
+;;                       (setq next-type-same-p nil))
+;;                     (math-tail
+;;                       (setq next-type-same-p t))))
+;;                 ((eq type 'math-tail)
+;;                   (cond
+;;                     ((and (not math-head) (not math-tail))
+;;                       (if next-type-same-p
+;;                         (setq found t)))
+;;                     (math-head
+;;                       (setq next-type-same-p t))
+;;                     (math-tail
+;;                       (setq next-type-same-p nil)))))))
+;;           (setq next-type-same-p (not next-type-same-p)))
+;;         (if found
+;;           (if (> (point) 1)
+;;             (progn
+;;               (if backward
+;;                 (put-text-property (point) (1+ (point)) type t)
+;;                 (put-text-property (1- (point)) (point) type t))
+;;               (1- (point) ))
+;;             (progn
+;;               (put-text-property 1 2 type t)
+;;               1)))))))
+;; ;; (typst--poly-math-find-head 1)
+;; ;; (typst--poly-math-find-tail)
+;; ;; $ $ $ $ $ $ $
+;; ;; (typst--poly-math-find-head -1)
 
-(defun typst--poly-math-find-head (ahead)
-  "See `pm-fun-matcher'."
-  (let ((backward (if (< ahead 0) t)))
-    (let ((the_point (typst--find-unmarked-dollar 'math-head backward)))
-      (if the_point
-        (progn
-          (put-text-property the_point (1+ the_point) 'math-head t)
-          (cons the_point (1+ the_point)))))))
+;; (defun typst--poly-math-find-head (ahead)
+;;   "See `pm-fun-matcher'."
+;;   (let ((backward (if (< ahead 0) t)))
+;;     (let ((the_point (typst--find-unmarked-dollar 'math-head backward)))
+;;       (if the_point
+;;         (progn
+;;           (put-text-property the_point (1+ the_point) 'math-head t)
+;;           (cons the_point (1+ the_point)))))))
 
-(defun typst--poly-math-find-tail (&rest _args)
-  (message "call find tail")
-  (let ((the_point (typst--find-unmarked-dollar 'math-tail)))
-    (if the_point
-      (progn
-        (put-text-property the_point (1+ the_point) 'math-tail t)
-        (cons the_point (1+ the_point))))))
+;; (defun typst--poly-math-find-tail (&rest _args)
+;;   (message "call find tail")
+;;   (let ((the_point (typst--find-unmarked-dollar 'math-tail)))
+;;     (if the_point
+;;       (progn
+;;         (put-text-property the_point (1+ the_point) 'math-tail t)
+;;         (cons the_point (1+ the_point))))))
 
-(define-innermode typst--poly-math-innermode
-  :mode 'typst--math-mode
-  ;; :head-matcher (cons (rx bol (* (not "$")) (group-n 1 "$") (* not-newline)) 1)
-  ;; :head-matcher "\\$"
-  ;; :tail-matcher "\\$"
-  :head-matcher #'typst--poly-math-find-head
-  :tail-matcher #'typst--poly-math-find-tail
-  :head-mode 'host
-  :tail-mode 'host)
+;; (define-innermode typst--poly-math-innermode
+;;   :mode 'typst--math-mode
+;;   ;; :head-matcher (cons (rx bol (* (not "$")) (group-n 1 "$") (* not-newline)) 1)
+;;   ;; :head-matcher "\\$"
+;;   ;; :tail-matcher "\\$"
+;;   :head-matcher #'typst--poly-math-find-head
+;;   :tail-matcher #'typst--poly-math-find-tail
+;;   :head-mode 'host
+;;   :tail-mode 'host)
 
 ;; ;;;###autoload
 (define-polymode typst-mode
