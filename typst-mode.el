@@ -21,7 +21,7 @@
 ;; Keywords: typst editing typesetting writing
 ;; URL: https://github.com/Ziqi-Yang/typst-mode.el
 ;; License: GNU General Public License >= 3
-;; Package-Requires: (polymode)
+;; Package-Requires: ((polymode "0.2.2"))
 
 ;;; Commentary:
 
@@ -31,7 +31,7 @@
 
 ;;; Usage:
 ;;; Customization:
-;;; Code: 
+;;; Code:
 
 (require 'polymode)
 (require 'rx)
@@ -65,12 +65,12 @@
 
 ;;; Variables ===============================================
 (defcustom typst-markup-tab-width  4
-  "Default tab width for typst markup mode"
+  "Default tab width for typst markup mode."
   :type 'integer
   :group 'typst-mode)
 
 (defcustom typst-code-tab-width  4
-  "Default tab width for typst code mode"
+  "Default tab width for typst code mode."
   :type 'integer
   :group 'typst-mode)
 
@@ -92,7 +92,7 @@
     ((eq system-type 'darwin) "open %s") ;; mac os
     ((eq system-type 'gnu/linux) "xdg-open %s")
     ((eq system-type 'windows-nt) "start %s"))
-  "Command to open/preview pdf. %s stand for the pdf file name."
+  "Command to open/preview pdf. '%s' stand for the pdf file name."
   :type 'string
   :group 'typst-mode)
 
@@ -101,10 +101,10 @@
      "`" "~" "!" "@" "#" "$" "%" "^" "&" "-" "_" "|" "?"
      "{" "}" "(" ")" "[" "]"
      "," "." "\\")
-  "All punctuation characters")
+  "All punctuation characters.")
 
 (defun typst--punct-exclude (exclude-list)
-  "Exclude all elements from `exclude-list' in `typst--puncts'"
+  "Exclude all elements from `exclude-list' in `typst--puncts'."
   (let ((punct typst--puncts))
 	  (dolist (chr exclude-list)
 		  (setq punct (remove chr punct)))
@@ -212,11 +212,11 @@
 (defconst typst--code-keywords-regexp
   ;; group 1
   (eval `(rx (or blank bol "{") (group-n 1 (or ,@typst--base-keywords "else")) (or blank eol ":")))
-  "Keywords regexp for typst code mode")
+  "Keywords regexp for typst code mode.")
 
 (defconst typst--code-operators-regexp
   (eval `(rx blank (group-n 1 (or ,@typst--base-operators)) blank))
-  "Operators regexp for typst code mode")
+  "Operators regexp for typst code mode.")
 
 (defconst typst--code-constant-regexp
   ;; TODO not graceful
@@ -227,7 +227,7 @@
                (or
                  "none"                  ;; none
                  "auto"                  ;; auto
-                 "false" "true"          ;; boolean 
+                 "false" "true"          ;; boolean
                  (1+ digit)              ;; integer
                  (1+ (or digit "e" ".")) ;; float
                  (seq (1+ (or digit "e" ".")) (or "pt" "mm" "cm" "in" "em")) ;; length
@@ -235,38 +235,38 @@
                  (seq (1+ (or digit "e" ".")) "%") ;; ratio
                  ;; pass relative length
                  (seq (1+ (or digit "e" ".")) "fr") ;; fraction
-                 ;; pass color TODO 
+                 ;; pass color TODO
                  ;; pass string (already in syntax table)
                  ;; pass array
                  ;; pass dictionary
-                 ;; pass arguments 
+                 ;; pass arguments
                  ))
              (or ,@puncts blank eol))))
-  "Constant regexp for typst code mode")
+  "Constant regexp for typst code mode.")
 
 (defconst typst--code-symbol-regexp
   (rx (or punct blank) (group-n 1 (1+ (syntax word))) ".")
-  "Symbol regexp for typst code mode")
+  "Symbol regexp for typst code mode.")
 
 (defconst typst--code-field-regexp
   (rx (or punct blank) (1+ (syntax word)) "." (group-n 1 (+ (syntax word))))
-  "Field regexp for typst code mode")
+  "Field regexp for typst code mode.")
 
 (defconst typst--code-function-method-regexp
   (rx (or punct blank "") (group-n 1 (+ (syntax word))) "(")
-  "Function/Method regexp for typst code mode")
+  "Function/Method regexp for typst code mode.")
 
 ;; TODO support function/method call
 (defconst typst--code-variable-regexp
   (let ((punct (typst--punct-exclude '(":" "-" "_" "," ")" "]" "}"))))
     (eval `(rx (or blank bol "#") (group-n 1 (+ (syntax word))) (* blank) (or ,@punct blank eol))))
-  "Function/Method regexp for typst code mode")
+  "Function/Method regexp for typst code mode.")
 
 ;; @ markup
 (defconst typst--markup-keywords-regexp
   (let ((keywords (mapcar #'(lambda (keyword) (concat "#" keyword)) typst--base-keywords)))
     (eval `(rx (or blank bol) (group-n 1 (or ,@keywords)) (or blank eol))))
-  "Keywords regexp for typst markup mode")
+  "Keywords regexp for typst markup mode.")
 
 ;; NOTE: this regexp is needed since clause like `#if x == 1 [` won't enter into code mode
 (defconst typst--markup-else-keyword-regexp ;; else and else if
@@ -347,22 +347,22 @@
      (,typst--markup-term-list-regexp 1 typst-mode-markup-term-list-face) ;; term list
      (,typst--markup-slash-regexp . typst-mode-markup-slash-face) ;; slash(line break and escape character)
      )
-  "Minimal highlighting expressions for typst mode")
+  "Minimal highlighting expressions for typst mode.")
 
 (defvar typst--code-font-lock-keywords
   `((,typst--code-keywords-regexp 1 font-lock-keyword-face)
      (,typst--code-operators-regexp . font-lock-builtin-face)
      (,typst--code-constant-regexp 1 font-lock-constant-face)
      (,typst--code-symbol-regexp 1 font-lock-variable-name-face)
-     (,typst--code-function-method-regexp 1 font-lock-function-name-face) ;; must be placed before typst--code-field-regexp 
+     (,typst--code-function-method-regexp 1 font-lock-function-name-face) ;; must be placed before typst--code-field-regexp
      (,typst--code-field-regexp 1 font-lock-string-face)
      ;; (,typst--code-variable-regexp 1 font-lock-variable-name-face) ;; NOTE
      )
-  "Minimal highlighting expressions for typst mode")
+  "Minimal highlighting expressions for typst mode.")
 
 (defvar typst--math-font-lock-keywords
   nil
-  "Minimal highlighting expressions for typst mode")
+  "Minimal highlighting expressions for typst mode.")
 
 ;;; Hooks ===================================================
 (defvar typst-mode-hook nil)
@@ -501,7 +501,7 @@
     (typst-preview)))
 
 (defun typst-stop-watch ()
-  "Stop typst watch process"
+  "Stop typst watch process."
   (interactive)
   (let ((watch-process-name "typst watch")
          (preview-process-name "typst preview"))
