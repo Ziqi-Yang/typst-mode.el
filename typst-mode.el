@@ -502,17 +502,13 @@
          (watch-process-name "typst watch" ))
     (unless (typst--process-exists-p watch-process-name)
       (start-process-shell-command watch-process-name typst-buffer-name
-        (format (format (concat typst-executable-location " -w %s %s") file-name (concat (file-name-sans-extension file-name) ".pdf")))))
-    (typst-preview)))
+        (format (format (concat typst-executable-location " watch %s %s --open") file-name (concat (file-name-sans-extension file-name) ".pdf")))))))
 
 (defun typst-stop-watch ()
   "Stop typst watch process."
   (interactive)
-  (let ((watch-process-name "typst watch")
-         (preview-process-name "typst preview"))
-    (delete-process watch-process-name)
-    ;; Note some command run outside emacs cannot be deleted (also the process only exists when calling it)
-    (delete-process preview-process-name)))
+  (let ((watch-process-name "typst watch"))
+    (delete-process watch-process-name)))
 
 (defun typst-toggle-watch()
   "Toggle tyspt watch."
