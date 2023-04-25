@@ -1,8 +1,14 @@
 ;;; typst-mode.el --- A major mode for working with Typst typesetting system -*- lexical-binding: t; -*-
+
+;; Version: 0.1
+;; Author: Ziqi Yang
+;; Keywords: outlines
+;; URL: https://github.com/Ziqi-Yang/typst-mode.el
+;; License: GNU General Public License >= 3
+;; Package-Requires: ((polymode "0.2.2") (emacs "24.3"))
+
 ;; Copyright (C) 2023, Ziqi Yang
-
 ;; This file is NOT part of Emacs.
-
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -16,21 +22,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Version: 0.1
-;; Author: Ziqi Yang
-;; Keywords: outlines
-;; URL: https://github.com/Ziqi-Yang/typst-mode.el
-;; License: GNU General Public License >= 3
-;; Package-Requires: ((polymode "0.2.2") (emacs "24.3"))
-
 ;;; Commentary:
 
-;; An Emacs major mode for typst markup-based typesetting system
+;; An Emacs major mode for typst, a markup-based typesetting system
 ;; https://github.com/Ziqi-Yang/typst-mode.el
 ;; See https://typst.app/
 
-;;; Usage:
-;;; Customization:
 ;;; Code:
 
 (require 'polymode)
@@ -266,7 +263,7 @@
 
 ;; @ markup
 (defconst typst--markup-keywords-regexp
-  (let ((keywords (mapcar #'(lambda (keyword) (concat "#" keyword)) typst--base-keywords)))
+  (let ((keywords (mapcar (lambda (keyword) (concat "#" keyword)) typst--base-keywords)))
     (eval `(rx (or blank bol) (group-n 1 (or ,@keywords)) (or blank eol))))
   "Keywords regexp for typst markup mode.")
 
@@ -502,7 +499,7 @@
          (watch-process-name "typst watch" ))
     (unless (typst--process-exists-p watch-process-name)
       (start-process-shell-command watch-process-name typst-buffer-name
-        (format (format (concat typst-executable-location " watch %s %s --open") file-name (concat (file-name-sans-extension file-name) ".pdf")))))))
+        (format (concat typst-executable-location " watch %s %s --open") file-name (concat (file-name-sans-extension file-name) ".pdf"))))))
 
 (defun typst-stop-watch ()
   "Stop typst watch process."
