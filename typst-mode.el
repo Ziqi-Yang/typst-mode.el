@@ -500,7 +500,9 @@
          (watch-process-name "typst watch" ))
     (unless (typst--process-exists-p watch-process-name)
       (start-process-shell-command watch-process-name typst-buffer-name
-        (format "%s watch %s %s --open" typst-executable-locationfile-name
+        (format "%s watch %s %s --open"
+          typst-executable-location
+          file-name
           (concat (file-name-sans-extension file-name) ".pdf"))))))
 
 (defun typst-stop-watch ()
