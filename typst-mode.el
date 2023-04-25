@@ -485,7 +485,8 @@
   "Preview the compiled pdf file."
   (interactive)
   (start-process-shell-command "typst preview" typst-buffer-name
-    (format typst-pdf-preview-command (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".pdf"))))
+    (format typst-pdf-preview-command
+      (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".pdf"))))
 
 (defun typst-compile-preview()
   "Compile and then open the compiled pdf file for preview."
@@ -499,7 +500,8 @@
          (watch-process-name "typst watch" ))
     (unless (typst--process-exists-p watch-process-name)
       (start-process-shell-command watch-process-name typst-buffer-name
-        (format (concat typst-executable-location " watch %s %s --open") file-name (concat (file-name-sans-extension file-name) ".pdf"))))))
+        (format "%s watch %s %s --open" typst-executable-locationfile-name
+          (concat (file-name-sans-extension file-name) ".pdf"))))))
 
 (defun typst-stop-watch ()
   "Stop typst watch process."
