@@ -270,7 +270,7 @@
 ;; NOTE: this regexp is needed since clause like `#if x == 1 [` won't enter into code mode
 (defconst typst--markup-else-keyword-regexp ;; else and else if
   (rx bol (*? not-newline) (syntax close-parenthesis)
-    (* blank) (group-n 1 (or "else" (seq "else" (* blank) "if")))(* blank) (syntax open-parenthesis)))
+    (* blank) (group-n 1 (or "else" (seq "else" (* blank) "if")))(* blank) (or "(" "[" "{")))
 
 (defconst typst--markup-comment-regexp ;; don't interfer URLs
   (rx (or (and (or bol (1+ whitespace)) "//" (*? anything) eol)
@@ -370,14 +370,8 @@
 (defvar typst--base-syntax-table
   (let ((syntax-table (make-syntax-table)))
     (modify-syntax-entry ?\" "." syntax-table) ;; change the default syntax entry for double quote(string quote character '"')
-     (modify-syntax-entry ?\n "> b" syntax-table)
-     (modify-syntax-entry ?\( "(" syntax-table)
-     (modify-syntax-entry ?\[ "(" syntax-table)
-     (modify-syntax-entry ?\{ "(" syntax-table)
-     (modify-syntax-entry ?\) ")" syntax-table)
-     (modify-syntax-entry ?\] ")" syntax-table)
-     (modify-syntax-entry ?\} ")" syntax-table)
-     syntax-table)
+    (modify-syntax-entry ?\n "> b" syntax-table)
+    syntax-table)
   "Syntax table for `typst--markup-mode'.")
 
 (defvar typst--markup-syntax-table
@@ -530,7 +524,13 @@ implementations: `typst-mode' and `typst-ts-mode'."
   (setq-local tab-width 4
     indent-line-function 'typst-mode-indent-line
     tab-width typst-code-tab-width
-    font-lock-keywords-only t))
+    font-lock-keywords-only t
+    electric-pair-pairs
+    '((?\( . ?\))
+       (?\[ . ?\])
+       (?\{ . ?\})
+       (?\' . ?\')
+       (?\" . ?\"))))
 
 (define-derived-mode typst--markup-mode typst--base-mode "Typst"
   "Major mode for editing Typst files.
