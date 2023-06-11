@@ -59,9 +59,7 @@ Supported.
 faces and custom variables with prefix =typst= or =typst-mode=
 
 * To Dos
-1. [ ] fix math mode 
-2. [ ] add treesit mode
-3. [ ] show compile errors at real time when in Typst =watch= mode
+1. [ ] add treesit mode [freeze until Emacs 29.1 release]
 
 * Current Shortages
 For those stuffs cannot be done in short future.

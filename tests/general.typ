@@ -1,4 +1,4 @@
-(#let cv(author: "", contacts: (), body) = {
+#let cv(author: "", contacts: (), body) = {
 	show heading: it => [
     #pad(bottom: -10pt, [#smallcaps(it.body)])
     #line(length: 100%, stroke: 1pt)
