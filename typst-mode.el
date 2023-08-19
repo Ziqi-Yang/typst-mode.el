@@ -289,10 +289,10 @@
   (rx (or "http://" "https://") (1+ (or alnum ":" "." "/" "-"))))
 
 (defconst typst--markup-label-regexp
-  (rx "<" (1+ (not (any punct blank))) ">"))
+  (rx "<" (1+ (not (any ">" blank))) ">"))
 
 (defconst typst--markup-reference-regexp
-  (rx "@" (1+ (not (any punct blank)))))
+  (rx "@" (1+ (not (any blank "@")))))
 
 (defconst typst--markup-heading-1-regexp
   ;; don't include label
