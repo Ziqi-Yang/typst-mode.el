@@ -1,8 +1,10 @@
 # Typst Mode
 
-Emacs support for [Typst](https://github.com/typst/typst). 
+**Note**: For Emacs 29 users, please use [typst-ts-mode](https://git.sr.ht/~meow_king/typst-ts-mode) instead, which is a lot more consummate than this mode.  
+**Note2**: I suppose I have no motion and plan to update this major mode in a long time, so I'll achieve 
+this major mode(github). I will spend more energy into maintaining `typst-ts-mode` and [uben0/tree-sitter-typst](https://github.com/uben0/tree-sitter-typst)  
 
-**Note**: this package is still in its awkward teenage phase, with many rendering features unsupported. 
+Emacs support for [Typst](https://github.com/typst/typst). 
 
 ## Requirements
 1. `typst`
