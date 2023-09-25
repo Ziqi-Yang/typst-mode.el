@@ -1,7 +1,7 @@
 ;;; typst-mode.el --- A major mode for working with Typst typesetting system -*- lexical-binding: t; -*-
 
 ;; Version: 0.1
-;; Author: Ziqi Yang
+;; Author: Ziqi Yang <mr.meowking@anche.no>
 ;; Keywords: outlines
 ;; URL: https://github.com/Ziqi-Yang/typst-mode.el
 ;; License: GNU General Public License >= 3

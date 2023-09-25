@@ -3,6 +3,7 @@
 **Note**: For Emacs 29 users, please use [typst-ts-mode](https://git.sr.ht/~meow_king/typst-ts-mode) instead, which is a lot more consummate than this mode.  
 **Note2**: I suppose I have no motion and plan to update this major mode in a long time, so I'll achieve 
 this major mode(github). I will spend more energy into maintaining `typst-ts-mode` and [uben0/tree-sitter-typst](https://github.com/uben0/tree-sitter-typst)  
+**Note3**: If someone wants to renew `typst-mode` and built it on top of the existing code, contact me (`mr.meowking@anche.no`), I can transfer this repo to you.
 
 Emacs support for [Typst](https://github.com/typst/typst). 
 
